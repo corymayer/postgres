@@ -808,6 +808,15 @@ use_physical_tlist(PlannerInfo *root, Path *path, int flags)
 		return false;
 
 	/*
+	 * If a bitmap scan's tlist is empty, keep it as-is.  This may allow the
+	 * executor to skip heap page fetches, and in any case, the benefit of
+	 * using a physical tlist instead would be minimal.
+	 */
+	if (IsA(path, BitmapHeapPath) &&
+		path->pathtarget->exprs == NIL)
+		return false;
+
+	/*
 	 * Can't do it if any system columns or whole-row Vars are requested.
 	 * (This could possibly be fixed but would take some fragile assumptions
 	 * in setrefs.c, I think.)
@@ -4933,7 +4942,11 @@ bitmap_subplan_mark_shared(Plan *plan)
 		bitmap_subplan_mark_shared(
 								   linitial(((BitmapAnd *) plan)->bitmapplans));
 	else if (IsA(plan, BitmapOr))
+	{
 		((BitmapOr *) plan)->isshared = true;
+		bitmap_subplan_mark_shared(
+								   linitial(((BitmapOr *) plan)->bitmapplans));
+	}
 	else if (IsA(plan, BitmapIndexScan))
 		((BitmapIndexScan *) plan)->isshared = true;
 	else
@@ -5524,7 +5537,7 @@ make_sort(Plan *lefttree, int numCols,
  *	  'pathkeys' is the list of pathkeys by which the result is to be sorted
  *	  'relids' identifies the child relation being sorted, if any
  *	  'reqColIdx' is NULL or an array of required sort key column numbers
- *	  'adjust_tlist_in_place' is TRUE if lefttree must be modified in-place
+ *	  'adjust_tlist_in_place' is true if lefttree must be modified in-place
  *
  * We must convert the pathkey information into arrays of sort key column
  * numbers, sort operator OIDs, collation OIDs, and nulls-first flags,
@@ -5545,7 +5558,7 @@ make_sort(Plan *lefttree, int numCols,
  * compute these expressions, since a Sort or MergeAppend node itself won't
  * do any such calculations.  If the input plan type isn't one that can do
  * projections, this means adding a Result node just to do the projection.
- * However, the caller can pass adjust_tlist_in_place = TRUE to force the
+ * However, the caller can pass adjust_tlist_in_place = true to force the
  * lefttree tlist to be modified in-place regardless of whether the node type
  * can project --- we use this for fixing the tlist of MergeAppend itself.
  *
@@ -6266,6 +6279,7 @@ make_gather(List *qptlist,
 	node->rescan_param = rescan_param;
 	node->single_copy = single_copy;
 	node->invisible = false;
+	node->initParam = NULL;
 
 	return node;
 }

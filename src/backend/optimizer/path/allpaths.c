@@ -950,6 +950,18 @@ set_append_rel_size(PlannerInfo *root, RelOptInfo *rel,
 													attno - 1);
 					int			child_index;
 
+					/*
+					 * Ignore any column dropped from the parent.
+					 * Corresponding Var won't have any translation. It won't
+					 * have attr_needed information, since it can not be
+					 * referenced in the query.
+					 */
+					if (var == NULL)
+					{
+						Assert(attr_needed == NULL);
+						continue;
+					}
+
 					child_index = var->varattno - childrel->min_attr;
 					childrel->attr_needed[child_index] = attr_needed;
 				}
@@ -1353,7 +1365,7 @@ add_paths_to_append_rel(PlannerInfo *root, RelOptInfo *rel,
 				build_partitioned_rels = true;
 				break;
 			default:
-				elog(ERROR, "unexpcted rtekind: %d", (int) rte->rtekind);
+				elog(ERROR, "unexpected rtekind: %d", (int) rte->rtekind);
 		}
 	}
 	else if (rel->reloptkind == RELOPT_JOINREL && rel->part_scheme)
@@ -1872,7 +1884,7 @@ set_subquery_pathlist(PlannerInfo *root, RelOptInfo *rel,
 	 * Zero out result area for subquery_is_pushdown_safe, so that it can set
 	 * flags as needed while recursing.  In particular, we need a workspace
 	 * for keeping track of unsafe-to-reference columns.  unsafeColumns[i]
-	 * will be set TRUE if we find that output column i of the subquery is
+	 * will be set true if we find that output column i of the subquery is
 	 * unsafe to use in a pushed-down qual.
 	 */
 	memset(&safetyInfo, 0, sizeof(safetyInfo));
@@ -2554,7 +2566,7 @@ standard_join_search(PlannerInfo *root, int levels_needed, List *initial_rels)
  * In addition, we make several checks on the subquery's output columns to see
  * if it is safe to reference them in pushed-down quals.  If output column k
  * is found to be unsafe to reference, we set safetyInfo->unsafeColumns[k]
- * to TRUE, but we don't reject the subquery overall since column k might not
+ * to true, but we don't reject the subquery overall since column k might not
  * be referenced by some/all quals.  The unsafeColumns[] array will be
  * consulted later by qual_is_pushdown_safe().  It's better to do it this way
  * than to make the checks directly in qual_is_pushdown_safe(), because when
@@ -2676,7 +2688,7 @@ recurse_pushdown_safe(Node *setOp, Query *topquery,
  *
  * There are several cases in which it's unsafe to push down an upper-level
  * qual if it references a particular output column of a subquery.  We check
- * each output column of the subquery and set unsafeColumns[k] to TRUE if
+ * each output column of the subquery and set unsafeColumns[k] to true if
  * that column is unsafe for a pushed-down qual to reference.  The conditions
  * checked here are:
  *
@@ -2828,9 +2840,11 @@ targetIsInAllPartitionLists(TargetEntry *tle, Query *query)
  *
  * Conditions checked here:
  *
- * 1. The qual must not contain any subselects (mainly because I'm not sure
- * it will work correctly: sublinks will already have been transformed into
- * subplans in the qual, but not in the subquery).
+ * 1. The qual must not contain any SubPlans (mainly because I'm not sure
+ * it will work correctly: SubLinks will already have been transformed into
+ * SubPlans in the qual, but not in the subquery).  Note that SubLinks that
+ * transform to initplans are safe, and will be accepted here because what
+ * we'll see in the qual is just a Param referencing the initplan output.
  *
  * 2. If unsafeVolatile is set, the qual must not contain any volatile
  * functions.
@@ -3262,10 +3276,10 @@ generate_partition_wise_join_paths(PlannerInfo *root, RelOptInfo *rel)
 		return;
 
 	/*
-	 * Nothing to do if the relation is not partitioned. An outer join
-	 * relation which had empty inner relation in every pair will have rest of
-	 * the partitioning properties set except the child-join RelOptInfos. See
-	 * try_partition_wise_join() for more explanation.
+	 * We've nothing to do if the relation is not partitioned. An outer join
+	 * relation which had an empty inner relation in every pair will have the
+	 * rest of the partitioning properties set except the child-join
+	 * RelOptInfos. See try_partition_wise_join() for more details.
 	 */
 	if (rel->nparts <= 0 || rel->part_rels == NULL)
 		return;
@@ -3284,7 +3298,7 @@ generate_partition_wise_join_paths(PlannerInfo *root, RelOptInfo *rel)
 		/* Add partition-wise join paths for partitioned child-joins. */
 		generate_partition_wise_join_paths(root, child_rel);
 
-		/* Dummy children will not be scanned, so ingore those. */
+		/* Dummy children will not be scanned, so ignore those. */
 		if (IS_DUMMY_REL(child_rel))
 			continue;
 

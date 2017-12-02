@@ -2221,13 +2221,18 @@ CalculateCheckpointSegments(void)
 	 * Calculate the distance at which to trigger a checkpoint, to avoid
 	 * exceeding max_wal_size_mb. This is based on two assumptions:
 	 *
-	 * a) we keep WAL for two checkpoint cycles, back to the "prev" checkpoint.
+	 * a) we keep WAL for only one checkpoint cycle (prior to PG11 we kept
+	 *    WAL for two checkpoint cycles to allow us to recover from the
+	 *    secondary checkpoint if the first checkpoint failed, though we
+	 *    only did this on the master anyway, not on standby. Keeping just
+	 *    one checkpoint simplifies processing and reduces disk space in
+	 *    many smaller databases.)
 	 * b) during checkpoint, we consume checkpoint_completion_target *
 	 *	  number of segments consumed between checkpoints.
 	 *-------
 	 */
 	target = (double) ConvertToXSegs(max_wal_size_mb, wal_segment_size) /
-		(2.0 + CheckPointCompletionTarget);
+		(1.0 + CheckPointCompletionTarget);
 
 	/* round down */
 	CheckPointSegments = (int) target;
@@ -2279,23 +2284,8 @@ XLOGfileslop(XLogRecPtr PriorRedoPtr)
 	 * To estimate where the next checkpoint will finish, assume that the
 	 * system runs steadily consuming CheckPointDistanceEstimate bytes between
 	 * every checkpoint.
-	 *
-	 * The reason this calculation is done from the prior checkpoint, not the
-	 * one that just finished, is that this behaves better if some checkpoint
-	 * cycles are abnormally short, like if you perform a manual checkpoint
-	 * right after a timed one. The manual checkpoint will make almost a full
-	 * cycle's worth of WAL segments available for recycling, because the
-	 * segments from the prior's prior, fully-sized checkpoint cycle are no
-	 * longer needed. However, the next checkpoint will make only few segments
-	 * available for recycling, the ones generated between the timed
-	 * checkpoint and the manual one right after that. If at the manual
-	 * checkpoint we only retained enough segments to get us to the next timed
-	 * one, and removed the rest, then at the next checkpoint we would not
-	 * have enough segments around for recycling, to get us to the checkpoint
-	 * after that. Basing the calculations on the distance from the prior redo
-	 * pointer largely fixes that problem.
 	 */
-	distance = (2.0 + CheckPointCompletionTarget) * CheckPointDistanceEstimate;
+	distance = (1.0 + CheckPointCompletionTarget) * CheckPointDistanceEstimate;
 	/* add 10% for good measure. */
 	distance *= 1.10;
 
@@ -2334,7 +2324,7 @@ XLogCheckpointNeeded(XLogSegNo new_segno)
 /*
  * Write and/or fsync the log at least as far as WriteRqst indicates.
  *
- * If flexible == TRUE, we don't have to write as far as WriteRqst, but
+ * If flexible == true, we don't have to write as far as WriteRqst, but
  * may stop at any convenient boundary (such as a cache or logfile boundary).
  * This option allows us to avoid uselessly issuing multiple writes when a
  * single one would do.
@@ -2955,7 +2945,7 @@ XLogFlush(XLogRecPtr record)
  *
  * This routine is invoked periodically by the background walwriter process.
  *
- * Returns TRUE if there was any work to do, even if we skipped flushing due
+ * Returns true if there was any work to do, even if we skipped flushing due
  * to wal_writer_delay/wal_writer_flush_after.
  */
 bool
@@ -3151,12 +3141,12 @@ XLogNeedsFlush(XLogRecPtr record)
  *
  * log, seg: identify segment to be created/opened.
  *
- * *use_existent: if TRUE, OK to use a pre-existing file (else, any
- * pre-existing file will be deleted).  On return, TRUE if a pre-existing
+ * *use_existent: if true, OK to use a pre-existing file (else, any
+ * pre-existing file will be deleted).  On return, true if a pre-existing
  * file was used.
  *
- * use_lock: if TRUE, acquire ControlFileLock while moving file into
- * place.  This should be TRUE except during bootstrap log creation.  The
+ * use_lock: if true, acquire ControlFileLock while moving file into
+ * place.  This should be true except during bootstrap log creation.  The
  * caller must *not* hold the lock at call.
  *
  * Returns FD of opened file.
@@ -3451,24 +3441,24 @@ XLogFileCopy(XLogSegNo destsegno, TimeLineID srcTLI, XLogSegNo srcsegno,
  * filename while it's being created) and to recycle an old segment.
  *
  * *segno: identify segment to install as (or first possible target).
- * When find_free is TRUE, this is modified on return to indicate the
+ * When find_free is true, this is modified on return to indicate the
  * actual installation location or last segment searched.
  *
  * tmppath: initial name of file to install.  It will be renamed into place.
  *
- * find_free: if TRUE, install the new segment at the first empty segno
- * number at or after the passed numbers.  If FALSE, install the new segment
+ * find_free: if true, install the new segment at the first empty segno
+ * number at or after the passed numbers.  If false, install the new segment
  * exactly where specified, deleting any existing segment file there.
  *
  * max_segno: maximum segment number to install the new file as.  Fail if no
  * free slot is found between *segno and max_segno. (Ignored when find_free
- * is FALSE.)
+ * is false.)
  *
- * use_lock: if TRUE, acquire ControlFileLock while moving file into
- * place.  This should be TRUE except during bootstrap log creation.  The
+ * use_lock: if true, acquire ControlFileLock while moving file into
+ * place.  This should be true except during bootstrap log creation.  The
  * caller must *not* hold the lock at call.
  *
- * Returns TRUE if the file was installed successfully.  FALSE indicates that
+ * Returns true if the file was installed successfully.  false indicates that
  * max_segno limit was exceeded, or an error occurred while renaming the
  * file into place.
  */
@@ -5690,7 +5680,7 @@ getRecordTimestamp(XLogReaderState *record, TimestampTz *recordXtime)
  * For point-in-time recovery, this function decides whether we want to
  * stop applying the XLOG before the current record.
  *
- * Returns TRUE if we are stopping, FALSE otherwise. If stopping, some
+ * Returns true if we are stopping, false otherwise. If stopping, some
  * information is saved in recoveryStopXid et al for use in annotating the
  * new timeline's history file.
  */
@@ -6593,29 +6583,16 @@ StartupXLOG(void)
 					(errmsg("checkpoint record is at %X/%X",
 							(uint32) (checkPointLoc >> 32), (uint32) checkPointLoc)));
 		}
-		else if (StandbyMode)
+		else
 		{
 			/*
-			 * The last valid checkpoint record required for a streaming
-			 * recovery exists in neither standby nor the primary.
+			 * We used to attempt to go back to a secondary checkpoint record
+			 * here, but only when not in standby_mode. We now just fail if we
+			 * can't read the last checkpoint because this allows us to
+			 * simplify processing around checkpoints.
 			 */
 			ereport(PANIC,
 					(errmsg("could not locate a valid checkpoint record")));
-		}
-		else
-		{
-			checkPointLoc = ControlFile->prevCheckPoint;
-			record = ReadCheckpointRecord(xlogreader, checkPointLoc, 2, true);
-			if (record != NULL)
-			{
-				ereport(LOG,
-						(errmsg("using previous checkpoint record at %X/%X",
-								(uint32) (checkPointLoc >> 32), (uint32) checkPointLoc)));
-				InRecovery = true;	/* force recovery even if SHUTDOWNED */
-			}
-			else
-				ereport(PANIC,
-						(errmsg("could not locate a valid checkpoint record")));
 		}
 		memcpy(&checkPoint, XLogRecGetData(xlogreader), sizeof(CheckPoint));
 		wasShutdown = ((record->xl_info & ~XLR_INFO_MASK) == XLOG_CHECKPOINT_SHUTDOWN);
@@ -6682,7 +6659,7 @@ StartupXLOG(void)
 	ereport(DEBUG1,
 			(errmsg_internal("redo record is at %X/%X; shutdown %s",
 							 (uint32) (checkPoint.redo >> 32), (uint32) checkPoint.redo,
-							 wasShutdown ? "TRUE" : "FALSE")));
+							 wasShutdown ? "true" : "false")));
 	ereport(DEBUG1,
 			(errmsg_internal("next transaction ID: %u:%u; next OID: %u",
 							 checkPoint.nextXidEpoch, checkPoint.nextXid,
@@ -6845,7 +6822,6 @@ StartupXLOG(void)
 								recoveryTargetTLI)));
 			ControlFile->state = DB_IN_CRASH_RECOVERY;
 		}
-		ControlFile->prevCheckPoint = ControlFile->checkPoint;
 		ControlFile->checkPoint = checkPointLoc;
 		ControlFile->checkPointCopy = checkPoint;
 		if (InArchiveRecovery)
@@ -7619,12 +7595,11 @@ StartupXLOG(void)
 		{
 			if (fast_promote)
 			{
-				checkPointLoc = ControlFile->prevCheckPoint;
+				checkPointLoc = ControlFile->checkPoint;
 
 				/*
 				 * Confirm the last checkpoint is available for us to recover
-				 * from if we fail. Note that we don't check for the secondary
-				 * checkpoint since that isn't available in most base backups.
+				 * from if we fail.
 				 */
 				record = ReadCheckpointRecord(xlogreader, checkPointLoc, 1, false);
 				if (record != NULL)
@@ -8090,7 +8065,7 @@ LocalSetXLogInsertAllowed(void)
  * Subroutine to try to fetch and validate a prior checkpoint record.
  *
  * whichChkpt identifies the checkpoint (merely for reporting purposes).
- * 1 for "primary", 2 for "secondary", 0 for "other" (backup_label)
+ * 1 for "primary", 0 for "other" (backup_label)
  */
 static XLogRecord *
 ReadCheckpointRecord(XLogReaderState *xlogreader, XLogRecPtr RecPtr,
@@ -8109,10 +8084,6 @@ ReadCheckpointRecord(XLogReaderState *xlogreader, XLogRecPtr RecPtr,
 			case 1:
 				ereport(LOG,
 						(errmsg("invalid primary checkpoint link in control file")));
-				break;
-			case 2:
-				ereport(LOG,
-						(errmsg("invalid secondary checkpoint link in control file")));
 				break;
 			default:
 				ereport(LOG,
@@ -8135,10 +8106,6 @@ ReadCheckpointRecord(XLogReaderState *xlogreader, XLogRecPtr RecPtr,
 				ereport(LOG,
 						(errmsg("invalid primary checkpoint record")));
 				break;
-			case 2:
-				ereport(LOG,
-						(errmsg("invalid secondary checkpoint record")));
-				break;
 			default:
 				ereport(LOG,
 						(errmsg("invalid checkpoint record")));
@@ -8153,10 +8120,6 @@ ReadCheckpointRecord(XLogReaderState *xlogreader, XLogRecPtr RecPtr,
 			case 1:
 				ereport(LOG,
 						(errmsg("invalid resource manager ID in primary checkpoint record")));
-				break;
-			case 2:
-				ereport(LOG,
-						(errmsg("invalid resource manager ID in secondary checkpoint record")));
 				break;
 			default:
 				ereport(LOG,
@@ -8175,10 +8138,6 @@ ReadCheckpointRecord(XLogReaderState *xlogreader, XLogRecPtr RecPtr,
 				ereport(LOG,
 						(errmsg("invalid xl_info in primary checkpoint record")));
 				break;
-			case 2:
-				ereport(LOG,
-						(errmsg("invalid xl_info in secondary checkpoint record")));
-				break;
 			default:
 				ereport(LOG,
 						(errmsg("invalid xl_info in checkpoint record")));
@@ -8193,10 +8152,6 @@ ReadCheckpointRecord(XLogReaderState *xlogreader, XLogRecPtr RecPtr,
 			case 1:
 				ereport(LOG,
 						(errmsg("invalid length of primary checkpoint record")));
-				break;
-			case 2:
-				ereport(LOG,
-						(errmsg("invalid length of secondary checkpoint record")));
 				break;
 			default:
 				ereport(LOG,
@@ -8933,8 +8888,8 @@ CreateCheckPoint(int flags)
 				(errmsg("concurrent write-ahead log activity while database system is shutting down")));
 
 	/*
-	 * Remember the prior checkpoint's redo pointer, used later to determine
-	 * the point where the log can be truncated.
+	 * Remember the prior checkpoint's redo ptr for
+	 * UpdateCheckPointDistanceEstimate()
 	 */
 	PriorRedoPtr = ControlFile->checkPointCopy.redo;
 
@@ -8944,7 +8899,6 @@ CreateCheckPoint(int flags)
 	LWLockAcquire(ControlFileLock, LW_EXCLUSIVE);
 	if (shutdown)
 		ControlFile->state = DB_SHUTDOWNED;
-	ControlFile->prevCheckPoint = ControlFile->checkPoint;
 	ControlFile->checkPoint = ProcLastRecPtr;
 	ControlFile->checkPointCopy = checkPoint;
 	ControlFile->time = (pg_time_t) time(NULL);
@@ -8982,8 +8936,7 @@ CreateCheckPoint(int flags)
 	smgrpostckpt();
 
 	/*
-	 * Delete old log files (those no longer needed even for previous
-	 * checkpoint or the standbys in XLOG streaming).
+	 * Delete old log files and recycle them
 	 */
 	if (PriorRedoPtr != InvalidXLogRecPtr)
 	{
@@ -8992,7 +8945,8 @@ CreateCheckPoint(int flags)
 		/* Update the average distance between checkpoints. */
 		UpdateCheckPointDistanceEstimate(RedoRecPtr - PriorRedoPtr);
 
-		XLByteToSeg(PriorRedoPtr, _logSegNo, wal_segment_size);
+		/* Trim from the last checkpoint, not the last - 1 */
+		XLByteToSeg(RedoRecPtr, _logSegNo, wal_segment_size);
 		KeepLogSeg(recptr, &_logSegNo);
 		_logSegNo--;
 		RemoveOldXlogFiles(_logSegNo, PriorRedoPtr, recptr);
@@ -9258,8 +9212,8 @@ CreateRestartPoint(int flags)
 	CheckPointGuts(lastCheckPoint.redo, flags);
 
 	/*
-	 * Remember the prior checkpoint's redo pointer, used later to determine
-	 * the point at which we can truncate the log.
+	 * Remember the prior checkpoint's redo ptr for
+	 * UpdateCheckPointDistanceEstimate()
 	 */
 	PriorRedoPtr = ControlFile->checkPointCopy.redo;
 
@@ -9273,7 +9227,6 @@ CreateRestartPoint(int flags)
 	if (ControlFile->state == DB_IN_ARCHIVE_RECOVERY &&
 		ControlFile->checkPointCopy.redo < lastCheckPoint.redo)
 	{
-		ControlFile->prevCheckPoint = ControlFile->checkPoint;
 		ControlFile->checkPoint = lastCheckPointRecPtr;
 		ControlFile->checkPointCopy = lastCheckPoint;
 		ControlFile->time = (pg_time_t) time(NULL);
@@ -11241,11 +11194,11 @@ GetOldestRestartPoint(XLogRecPtr *oldrecptr, TimeLineID *oldtli)
  * later than the start of the dump, and so if we rely on it as the start
  * point, we will fail to restore a consistent database state.
  *
- * Returns TRUE if a backup_label was found (and fills the checkpoint
+ * Returns true if a backup_label was found (and fills the checkpoint
  * location and its REDO location into *checkPointLoc and RedoStartLSN,
- * respectively); returns FALSE if not. If this backup_label came from a
- * streamed backup, *backupEndRequired is set to TRUE. If this backup_label
- * was created during recovery, *backupFromStandby is set to TRUE.
+ * respectively); returns false if not. If this backup_label came from a
+ * streamed backup, *backupEndRequired is set to true. If this backup_label
+ * was created during recovery, *backupFromStandby is set to true.
  */
 static bool
 read_backup_label(XLogRecPtr *checkPointLoc, bool *backupEndRequired,
@@ -11328,8 +11281,8 @@ read_backup_label(XLogRecPtr *checkPointLoc, bool *backupEndRequired,
  * recovering from a backup dump file, and we therefore need to create symlinks
  * as per the information present in tablespace_map file.
  *
- * Returns TRUE if a tablespace_map file was found (and fills the link
- * information for all the tablespace links present in file); returns FALSE
+ * Returns true if a tablespace_map file was found (and fills the link
+ * information for all the tablespace links present in file); returns false
  * if not.
  */
 static bool
@@ -11763,7 +11716,7 @@ WaitForWALToBecomeAvailable(XLogRecPtr RecPtr, bool randAccess,
 					 * If primary_conninfo is set, launch walreceiver to try
 					 * to stream the missing WAL.
 					 *
-					 * If fetching_ckpt is TRUE, RecPtr points to the initial
+					 * If fetching_ckpt is true, RecPtr points to the initial
 					 * checkpoint location. In that case, we use RedoStartLSN
 					 * as the streaming start position instead of RecPtr, so
 					 * that when we later jump backwards to start redo at

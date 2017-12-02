@@ -19,6 +19,22 @@ explain (costs off)
   select count(*) from a_star;
 select count(*) from a_star;
 
+-- test with leader participation disabled
+set parallel_leader_participation = off;
+explain (costs off)
+  select count(*) from tenk1 where stringu1 = 'GRAAAA';
+select count(*) from tenk1 where stringu1 = 'GRAAAA';
+
+-- test with leader participation disabled, but no workers available (so
+-- the leader will have to run the plan despite the setting)
+set max_parallel_workers = 0;
+explain (costs off)
+  select count(*) from tenk1 where stringu1 = 'GRAAAA';
+select count(*) from tenk1 where stringu1 = 'GRAAAA';
+
+reset max_parallel_workers;
+reset parallel_leader_participation;
+
 -- test that parallel_restricted function doesn't run in worker
 alter table tenk1 set (parallel_workers = 4);
 explain (verbose, costs off)
@@ -39,6 +55,12 @@ explain (costs off)
 	select  sum(parallel_restricted(unique1)) from tenk1
 	group by(parallel_restricted(unique1));
 
+-- test prepared statement
+prepare tenk1_count(integer) As select  count((unique1)) from tenk1 where hundred > $1;
+explain (costs off) execute tenk1_count(1);
+execute tenk1_count(1);
+deallocate tenk1_count;
+
 -- test parallel plans for queries containing un-correlated subplans.
 alter table tenk2 set (parallel_workers = 0);
 explain (costs off)
@@ -50,6 +72,23 @@ select count(*) from tenk1 where (two, four) not in
 explain (costs off)
 	select * from tenk1 where (unique1 + random())::integer not in
 	(select ten from tenk2);
+alter table tenk2 reset (parallel_workers);
+
+-- test parallel plan for a query containing initplan.
+set enable_indexscan = off;
+set enable_indexonlyscan = off;
+set enable_bitmapscan = off;
+alter table tenk2 set (parallel_workers = 2);
+
+explain (costs off)
+	select count(*) from tenk1
+        where tenk1.unique1 = (Select max(tenk2.unique1) from tenk2);
+select count(*) from tenk1
+    where tenk1.unique1 = (Select max(tenk2.unique1) from tenk2);
+
+reset enable_indexscan;
+reset enable_indexonlyscan;
+reset enable_bitmapscan;
 alter table tenk2 reset (parallel_workers);
 
 -- test parallel index scans.
@@ -138,6 +177,29 @@ explain (costs off)
 
 select count(*) from tenk1 group by twenty;
 
+--test expressions in targetlist are pushed down for gather merge
+create or replace function simple_func(var1 integer) returns integer
+as $$
+begin
+        return var1 + 10;
+end;
+$$ language plpgsql PARALLEL SAFE;
+
+explain (costs off, verbose)
+    select ten, simple_func(ten) from tenk1 where ten < 100 order by ten;
+
+drop function simple_func(integer);
+
+-- test gather merge with parallel leader participation disabled
+set parallel_leader_participation = off;
+
+explain (costs off)
+   select count(*) from tenk1 group by twenty;
+
+select count(*) from tenk1 group by twenty;
+
+reset parallel_leader_participation;
+
 --test rescan behavior of gather merge
 set enable_material = false;
 
@@ -156,6 +218,12 @@ reset enable_material;
 
 reset enable_hashagg;
 
+-- check parallelized int8 aggregate (bug #14897)
+explain (costs off)
+select avg(unique1::int8) from tenk1;
+
+select avg(unique1::int8) from tenk1;
+
 -- gather merge test with a LIMIT
 explain (costs off)
   select fivethous from tenk1 order by fivethous limit 4;
@@ -167,6 +235,16 @@ set max_parallel_workers = 0;
 explain (costs off)
    select string4 from tenk1 order by string4 limit 5;
 select string4 from tenk1 order by string4 limit 5;
+
+-- gather merge test with 0 workers, with parallel leader
+-- participation disabled (the leader will have to run the plan
+-- despite the setting)
+set parallel_leader_participation = off;
+explain (costs off)
+   select string4 from tenk1 order by string4 limit 5;
+select string4 from tenk1 order by string4 limit 5;
+
+reset parallel_leader_participation;
 reset max_parallel_workers;
 
 SAVEPOINT settings;
@@ -194,6 +272,17 @@ SET LOCAL force_parallel_mode = 1;
 SELECT make_record(x) FROM (SELECT generate_series(1, 5) x) ss ORDER BY x;
 ROLLBACK TO SAVEPOINT settings;
 DROP function make_record(n int);
+
+-- test the sanity of parallel query after the active role is dropped.
+drop role if exists regress_parallel_worker;
+create role regress_parallel_worker;
+set role regress_parallel_worker;
+reset session authorization;
+drop role regress_parallel_worker;
+set force_parallel_mode = 1;
+select count(*) from tenk1;
+reset force_parallel_mode;
+reset role;
 
 -- to increase the parallel query test coverage
 SAVEPOINT settings;

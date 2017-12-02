@@ -27,6 +27,7 @@
 #include "commands/copy.h"
 #include "commands/defrem.h"
 #include "commands/trigger.h"
+#include "executor/execPartition.h"
 #include "executor/executor.h"
 #include "libpq/libpq.h"
 #include "libpq/pqformat.h"
@@ -88,7 +89,7 @@ typedef enum EolType
  * characters, else we might find a false match to a trailing byte. In
  * supported server encodings, there is no possibility of a false match, and
  * it's faster to make useless comparisons to trailing bytes than it is to
- * invoke pg_encoding_mblen() to skip over them. encoding_embeds_ascii is TRUE
+ * invoke pg_encoding_mblen() to skip over them. encoding_embeds_ascii is true
  * when we have to do it the hard way.
  */
 typedef struct CopyStateData
@@ -167,7 +168,7 @@ typedef struct CopyStateData
 	PartitionDispatch *partition_dispatch_info;
 	int			num_dispatch;	/* Number of entries in the above array */
 	int			num_partitions; /* Number of members in the following arrays */
-	ResultRelInfo *partitions;	/* Per partition result relation */
+	ResultRelInfo **partitions; /* Per partition result relation pointers */
 	TupleConversionMap **partition_tupconv_maps;
 	TupleTableSlot *partition_tuple_slot;
 	TransitionCaptureState *transition_capture;
@@ -357,9 +358,9 @@ SendCopyBegin(CopyState cstate)
 
 		pq_beginmessage(&buf, 'H');
 		pq_sendbyte(&buf, format);	/* overall format */
-		pq_sendint(&buf, natts, 2);
+		pq_sendint16(&buf, natts);
 		for (i = 0; i < natts; i++)
-			pq_sendint(&buf, format, 2);	/* per-column formats */
+			pq_sendint16(&buf, format); /* per-column formats */
 		pq_endmessage(&buf);
 		cstate->copy_dest = COPY_NEW_FE;
 	}
@@ -390,9 +391,9 @@ ReceiveCopyBegin(CopyState cstate)
 
 		pq_beginmessage(&buf, 'G');
 		pq_sendbyte(&buf, format);	/* overall format */
-		pq_sendint(&buf, natts, 2);
+		pq_sendint16(&buf, natts);
 		for (i = 0; i < natts; i++)
-			pq_sendint(&buf, format, 2);	/* per-column formats */
+			pq_sendint16(&buf, format); /* per-column formats */
 		pq_endmessage(&buf);
 		cstate->copy_dest = COPY_NEW_FE;
 		cstate->fe_msgbuf = makeStringInfo();
@@ -726,7 +727,7 @@ CopyGetInt16(CopyState cstate, int16 *val)
 /*
  * CopyLoadRawBuf loads some more data into raw_buf
  *
- * Returns TRUE if able to obtain at least one more byte, else FALSE.
+ * Returns true if able to obtain at least one more byte, else false.
  *
  * If raw_buf_index < raw_buf_len, the unprocessed bytes are transferred
  * down to the start of the buffer and then we load more data after that.
@@ -763,7 +764,7 @@ CopyLoadRawBuf(CopyState cstate)
  *	 DoCopy executes the SQL COPY statement
  *
  * Either unload or reload contents of table <relation>, depending on <from>.
- * (<from> = TRUE means we are inserting into the table.)  In the "TO" case
+ * (<from> = true means we are inserting into the table.)  In the "TO" case
  * we also support copying the output of an arbitrary SELECT, INSERT, UPDATE
  * or DELETE query.
  *
@@ -2394,13 +2395,25 @@ CopyFrom(CopyState cstate)
 	/*
 	 * Optimize if new relfilenode was created in this subxact or one of its
 	 * committed children and we won't see those rows later as part of an
-	 * earlier scan or command. This ensures that if this subtransaction
-	 * aborts then the frozen rows won't be visible after xact cleanup. Note
+	 * earlier scan or command. The subxact test ensures that if this subxact
+	 * aborts then the frozen rows won't be visible after xact cleanup.  Note
 	 * that the stronger test of exactly which subtransaction created it is
-	 * crucial for correctness of this optimization.
+	 * crucial for correctness of this optimization. The test for an earlier
+	 * scan or command tolerates false negatives. FREEZE causes other sessions
+	 * to see rows they would not see under MVCC, and a false negative merely
+	 * spreads that anomaly to the current session.
 	 */
 	if (cstate->freeze)
 	{
+		/*
+		 * Tolerate one registration for the benefit of FirstXactSnapshot.
+		 * Scan-bearing queries generally create at least two registrations,
+		 * though relying on that is fragile, as is ignoring ActiveSnapshot.
+		 * Clear CatalogSnapshot to avoid counting its registration.  We'll
+		 * still detect ongoing catalog scans, each of which separately
+		 * registers the snapshot it uses.
+		 */
+		InvalidateCatalogSnapshot();
 		if (!ThereAreNoPriorRegisteredSnapshots() || !ThereAreNoReadyPortals())
 			ereport(ERROR,
 					(errcode(ERRCODE_INVALID_TRANSACTION_STATE),
@@ -2459,13 +2472,14 @@ CopyFrom(CopyState cstate)
 	if (cstate->rel->rd_rel->relkind == RELKIND_PARTITIONED_TABLE)
 	{
 		PartitionDispatch *partition_dispatch_info;
-		ResultRelInfo *partitions;
+		ResultRelInfo **partitions;
 		TupleConversionMap **partition_tupconv_maps;
 		TupleTableSlot *partition_tuple_slot;
 		int			num_parted,
 					num_partitions;
 
-		ExecSetupPartitionTupleRouting(cstate->rel,
+		ExecSetupPartitionTupleRouting(NULL,
+									   cstate->rel,
 									   1,
 									   estate,
 									   &partition_dispatch_info,
@@ -2495,7 +2509,7 @@ CopyFrom(CopyState cstate)
 			for (i = 0; i < cstate->num_partitions; ++i)
 			{
 				cstate->transition_tupconv_maps[i] =
-					convert_tuples_by_name(RelationGetDescr(cstate->partitions[i].ri_RelationDesc),
+					convert_tuples_by_name(RelationGetDescr(cstate->partitions[i]->ri_RelationDesc),
 										   RelationGetDescr(cstate->rel),
 										   gettext_noop("could not convert row type"));
 			}
@@ -2626,7 +2640,7 @@ CopyFrom(CopyState cstate)
 			 * to the selected partition.
 			 */
 			saved_resultRelInfo = resultRelInfo;
-			resultRelInfo = cstate->partitions + leaf_part_index;
+			resultRelInfo = cstate->partitions[leaf_part_index];
 
 			/* We do not yet have a way to insert into a foreign partition */
 			if (resultRelInfo->ri_FdwRoutine)
@@ -2856,7 +2870,7 @@ CopyFrom(CopyState cstate)
 		}
 		for (i = 0; i < cstate->num_partitions; i++)
 		{
-			ResultRelInfo *resultRelInfo = cstate->partitions + i;
+			ResultRelInfo *resultRelInfo = cstate->partitions[i];
 
 			ExecCloseIndices(resultRelInfo);
 			heap_close(resultRelInfo->ri_RelationDesc, NoLock);

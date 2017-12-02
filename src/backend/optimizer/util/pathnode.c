@@ -1374,6 +1374,11 @@ create_result_path(PlannerInfo *root, RelOptInfo *rel,
 	pathnode->path.startup_cost = target->cost.startup;
 	pathnode->path.total_cost = target->cost.startup +
 		cpu_tuple_cost + target->cost.per_tuple;
+
+	/*
+	 * Add cost of qual, if any --- but we ignore its selectivity, since our
+	 * rowcount estimate should be 1 no matter what the qual is.
+	 */
 	if (resconstantqual)
 	{
 		QualCost	qual_cost;
@@ -1457,10 +1462,16 @@ create_unique_path(PlannerInfo *root, RelOptInfo *rel, Path *subpath,
 		return NULL;
 
 	/*
-	 * We must ensure path struct and subsidiary data are allocated in main
-	 * planning context; otherwise GEQO memory management causes trouble.
+	 * When called during GEQO join planning, we are in a short-lived memory
+	 * context.  We must make sure that the path and any subsidiary data
+	 * structures created for a baserel survive the GEQO cycle, else the
+	 * baserel is trashed for future GEQO cycles.  On the other hand, when we
+	 * are creating those for a joinrel during GEQO, we don't want them to
+	 * clutter the main planning context.  Upshot is that the best solution is
+	 * to explicitly allocate memory in the same context the given RelOptInfo
+	 * is in.
 	 */
-	oldcontext = MemoryContextSwitchTo(root->planner_cxt);
+	oldcontext = MemoryContextSwitchTo(GetMemoryChunkContext(rel));
 
 	pathnode = makeNode(UniquePath);
 
@@ -1596,6 +1607,7 @@ create_unique_path(PlannerInfo *root, RelOptInfo *rel, Path *subpath,
 			cost_agg(&agg_path, root,
 					 AGG_HASHED, NULL,
 					 numCols, pathnode->path.rows,
+					 NIL,
 					 subpath->startup_cost,
 					 subpath->total_cost,
 					 rel->rows);
@@ -2362,9 +2374,9 @@ create_projection_path(PlannerInfo *root,
  * knows that the given path isn't referenced elsewhere and so can be modified
  * in-place.
  *
- * If the input path is a GatherPath, we try to push the new target down to
- * its input as well; this is a yet more invasive modification of the input
- * path, which create_projection_path() can't do.
+ * If the input path is a GatherPath or GatherMergePath, we try to push the
+ * new target down to its input as well; this is a yet more invasive
+ * modification of the input path, which create_projection_path() can't do.
  *
  * Note that we mustn't change the source path's parent link; so when it is
  * add_path'd to "rel" things will be a bit inconsistent.  So far that has
@@ -2401,31 +2413,44 @@ apply_projection_to_path(PlannerInfo *root,
 		(target->cost.per_tuple - oldcost.per_tuple) * path->rows;
 
 	/*
-	 * If the path happens to be a Gather path, we'd like to arrange for the
-	 * subpath to return the required target list so that workers can help
-	 * project.  But if there is something that is not parallel-safe in the
-	 * target expressions, then we can't.
+	 * If the path happens to be a Gather or GatherMerge path, we'd like to
+	 * arrange for the subpath to return the required target list so that
+	 * workers can help project.  But if there is something that is not
+	 * parallel-safe in the target expressions, then we can't.
 	 */
-	if (IsA(path, GatherPath) &&
+	if ((IsA(path, GatherPath) ||IsA(path, GatherMergePath)) &&
 		is_parallel_safe(root, (Node *) target->exprs))
 	{
-		GatherPath *gpath = (GatherPath *) path;
-
 		/*
 		 * We always use create_projection_path here, even if the subpath is
 		 * projection-capable, so as to avoid modifying the subpath in place.
 		 * It seems unlikely at present that there could be any other
 		 * references to the subpath, but better safe than sorry.
 		 *
-		 * Note that we don't change the GatherPath's cost estimates; it might
-		 * be appropriate to do so, to reflect the fact that the bulk of the
-		 * target evaluation will happen in workers.
+		 * Note that we don't change the parallel path's cost estimates; it
+		 * might be appropriate to do so, to reflect the fact that the bulk of
+		 * the target evaluation will happen in workers.
 		 */
-		gpath->subpath = (Path *)
-			create_projection_path(root,
-								   gpath->subpath->parent,
-								   gpath->subpath,
-								   target);
+		if (IsA(path, GatherPath))
+		{
+			GatherPath *gpath = (GatherPath *) path;
+
+			gpath->subpath = (Path *)
+				create_projection_path(root,
+									   gpath->subpath->parent,
+									   gpath->subpath,
+									   target);
+		}
+		else
+		{
+			GatherMergePath *gmpath = (GatherMergePath *) path;
+
+			gmpath->subpath = (Path *)
+				create_projection_path(root,
+									   gmpath->subpath->parent,
+									   gmpath->subpath,
+									   target);
+		}
 	}
 	else if (path->parallel_safe &&
 			 !is_parallel_safe(root, (Node *) target->exprs))
@@ -2592,6 +2617,7 @@ create_group_path(PlannerInfo *root,
 	cost_group(&pathnode->path, root,
 			   list_length(groupClause),
 			   numGroups,
+			   qual,
 			   subpath->startup_cost, subpath->total_cost,
 			   subpath->rows);
 
@@ -2709,6 +2735,7 @@ create_agg_path(PlannerInfo *root,
 	cost_agg(&pathnode->path, root,
 			 aggstrategy, aggcosts,
 			 list_length(groupClause), numGroups,
+			 qual,
 			 subpath->startup_cost, subpath->total_cost,
 			 subpath->rows);
 
@@ -2817,6 +2844,7 @@ create_groupingsets_path(PlannerInfo *root,
 					 agg_costs,
 					 numGroupCols,
 					 rollup->numGroups,
+					 having_qual,
 					 subpath->startup_cost,
 					 subpath->total_cost,
 					 subpath->rows);
@@ -2840,6 +2868,7 @@ create_groupingsets_path(PlannerInfo *root,
 						 agg_costs,
 						 numGroupCols,
 						 rollup->numGroups,
+						 having_qual,
 						 0.0, 0.0,
 						 subpath->rows);
 				if (!rollup->is_hashed)
@@ -2863,6 +2892,7 @@ create_groupingsets_path(PlannerInfo *root,
 						 agg_costs,
 						 numGroupCols,
 						 rollup->numGroups,
+						 having_qual,
 						 sort_path.startup_cost,
 						 sort_path.total_cost,
 						 sort_path.rows);
@@ -2931,6 +2961,19 @@ create_minmaxagg_path(PlannerInfo *root,
 	pathnode->path.startup_cost = initplan_cost + target->cost.startup;
 	pathnode->path.total_cost = initplan_cost + target->cost.startup +
 		target->cost.per_tuple + cpu_tuple_cost;
+
+	/*
+	 * Add cost of qual, if any --- but we ignore its selectivity, since our
+	 * rowcount estimate should be 1 no matter what the qual is.
+	 */
+	if (quals)
+	{
+		QualCost	qual_cost;
+
+		cost_qual_eval(&qual_cost, quals, root);
+		pathnode->path.startup_cost += qual_cost.startup;
+		pathnode->path.total_cost += qual_cost.startup + qual_cost.per_tuple;
+	}
 
 	return pathnode;
 }
@@ -3781,6 +3824,7 @@ reparameterize_pathlist_by_child(PlannerInfo *root,
 	{
 		Path	   *path = reparameterize_path_by_child(root, lfirst(lc),
 														child_rel);
+
 		if (path == NULL)
 		{
 			list_free(result);

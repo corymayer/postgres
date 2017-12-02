@@ -239,7 +239,7 @@ date_send(PG_FUNCTION_ARGS)
 	StringInfoData buf;
 
 	pq_begintypsend(&buf);
-	pq_sendint(&buf, date, sizeof(date));
+	pq_sendint32(&buf, date);
 	PG_RETURN_BYTEA_P(pq_endtypsend(&buf));
 }
 
@@ -2049,7 +2049,7 @@ timetz_send(PG_FUNCTION_ARGS)
 
 	pq_begintypsend(&buf);
 	pq_sendint64(&buf, time->time);
-	pq_sendint(&buf, time->zone, sizeof(time->zone));
+	pq_sendint32(&buf, time->zone);
 	PG_RETURN_BYTEA_P(pq_endtypsend(&buf));
 }
 
@@ -2231,7 +2231,7 @@ timetz_hash_extended(PG_FUNCTION_ARGS)
 											   Int64GetDatumFast(key->time),
 											   seed));
 	thash ^= DatumGetUInt64(hash_uint32_extended(key->zone,
-							DatumGetInt64(seed)));
+												 DatumGetInt64(seed)));
 	PG_RETURN_UINT64(thash);
 }
 

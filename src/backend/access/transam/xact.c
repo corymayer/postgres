@@ -575,18 +575,10 @@ AssignTransactionId(TransactionState s)
 	 * ResourceOwner.
 	 */
 	currentOwner = CurrentResourceOwner;
-	PG_TRY();
-	{
-		CurrentResourceOwner = s->curTransactionOwner;
-		XactLockTableInsert(s->transactionId);
-	}
-	PG_CATCH();
-	{
-		/* Ensure CurrentResourceOwner is restored on error */
-		CurrentResourceOwner = currentOwner;
-		PG_RE_THROW();
-	}
-	PG_END_TRY();
+	CurrentResourceOwner = s->curTransactionOwner;
+
+	XactLockTableInsert(s->transactionId);
+
 	CurrentResourceOwner = currentOwner;
 
 	/*
@@ -679,8 +671,8 @@ SubTransactionIsActive(SubTransactionId subxid)
 /*
  *	GetCurrentCommandId
  *
- * "used" must be TRUE if the caller intends to use the command ID to mark
- * inserted/updated/deleted tuples.  FALSE means the ID is being fetched
+ * "used" must be true if the caller intends to use the command ID to mark
+ * inserted/updated/deleted tuples.  false means the ID is being fetched
  * for read-only purposes (ie, as a snapshot validity cutoff).  See
  * CommandCounterIncrement() for discussion.
  */
@@ -1172,7 +1164,7 @@ RecordTransactionCommit(void)
 		 * vacuum.  Hence we emit a bespoke record for the invalidations. We
 		 * don't want to use that in case a commit record is emitted, so they
 		 * happen synchronously with commits (besides not wanting to emit more
-		 * WAL recoreds).
+		 * WAL records).
 		 */
 		if (nmsgs != 0)
 		{
@@ -3478,7 +3470,7 @@ BeginTransactionBlock(void)
  *		This executes a PREPARE command.
  *
  * Since PREPARE may actually do a ROLLBACK, the result indicates what
- * happened: TRUE for PREPARE, FALSE for ROLLBACK.
+ * happened: true for PREPARE, false for ROLLBACK.
  *
  * Note that we don't actually do anything here except change blockState.
  * The real work will be done in the upcoming PrepareTransaction().
@@ -3486,7 +3478,7 @@ BeginTransactionBlock(void)
  * resource owner, etc while executing inside a Portal.
  */
 bool
-PrepareTransactionBlock(char *gid)
+PrepareTransactionBlock(const char *gid)
 {
 	TransactionState s;
 	bool		result;
@@ -3530,7 +3522,7 @@ PrepareTransactionBlock(char *gid)
  *		This executes a COMMIT command.
  *
  * Since COMMIT may actually do a ROLLBACK, the result indicates what
- * happened: TRUE for COMMIT, FALSE for ROLLBACK.
+ * happened: true for COMMIT, false for ROLLBACK.
  *
  * Note that we don't actually do anything here except change blockState.
  * The real work will be done in the upcoming CommitTransactionCommand().
@@ -3831,7 +3823,7 @@ EndImplicitTransactionBlock(void)
  *		This executes a SAVEPOINT command.
  */
 void
-DefineSavepoint(char *name)
+DefineSavepoint(const char *name)
 {
 	TransactionState s = CurrentTransactionState;
 
@@ -4176,7 +4168,7 @@ RollbackToSavepoint(List *options)
  *		the caller to do it.
  */
 void
-BeginInternalSubTransaction(char *name)
+BeginInternalSubTransaction(const char *name)
 {
 	TransactionState s = CurrentTransactionState;
 

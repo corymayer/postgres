@@ -706,7 +706,7 @@ ArrayCount(const char *str, int *dim, char typdelim)
  * Outputs:
  *	values[]: filled with converted data values.
  *	nulls[]: filled with is-null markers.
- *	*hasnulls: set TRUE iff there are any null elements.
+ *	*hasnulls: set true iff there are any null elements.
  *	*nbytes: set to total size of data area needed (including alignment
  *		padding but not including array header overhead).
  *
@@ -946,7 +946,7 @@ ReadArrayStr(char *arrayStr,
  * nulls: array of is-null flags (can be NULL if no nulls)
  * nitems: number of Datums to be copied
  * typbyval, typlen, typalign: info about element datatype
- * freedata: if TRUE and element type is pass-by-ref, pfree data values
+ * freedata: if true and element type is pass-by-ref, pfree data values
  * referenced by Datums after copying them.
  *
  * If the input data is of varlena type, the caller must have ensured that
@@ -1419,7 +1419,7 @@ array_recv(PG_FUNCTION_ARGS)
  * Outputs:
  *	values[]: filled with converted data values.
  *	nulls[]: filled with is-null markers.
- *	*hasnulls: set TRUE iff there are any null elements.
+ *	*hasnulls: set true iff there are any null elements.
  *	*nbytes: set to total size of data area needed (including alignment
  *		padding but not including array header overhead).
  *
@@ -1590,13 +1590,13 @@ array_send(PG_FUNCTION_ARGS)
 	pq_begintypsend(&buf);
 
 	/* Send the array header information */
-	pq_sendint(&buf, ndim, 4);
-	pq_sendint(&buf, AARR_HASNULL(v) ? 1 : 0, 4);
-	pq_sendint(&buf, element_type, sizeof(Oid));
+	pq_sendint32(&buf, ndim);
+	pq_sendint32(&buf, AARR_HASNULL(v) ? 1 : 0);
+	pq_sendint32(&buf, element_type);
 	for (i = 0; i < ndim; i++)
 	{
-		pq_sendint(&buf, dim[i], 4);
-		pq_sendint(&buf, lb[i], 4);
+		pq_sendint32(&buf, dim[i]);
+		pq_sendint32(&buf, lb[i]);
 	}
 
 	/* Send the array elements using the element's own sendproc */
@@ -1614,14 +1614,14 @@ array_send(PG_FUNCTION_ARGS)
 		if (isnull)
 		{
 			/* -1 length means a NULL */
-			pq_sendint(&buf, -1, 4);
+			pq_sendint32(&buf, -1);
 		}
 		else
 		{
 			bytea	   *outputbytes;
 
 			outputbytes = SendFunctionCall(&my_extra->proc, itemvalue);
-			pq_sendint(&buf, VARSIZE(outputbytes) - VARHDRSZ, 4);
+			pq_sendint32(&buf, VARSIZE(outputbytes) - VARHDRSZ);
 			pq_sendbytes(&buf, VARDATA(outputbytes),
 						 VARSIZE(outputbytes) - VARHDRSZ);
 			pfree(outputbytes);

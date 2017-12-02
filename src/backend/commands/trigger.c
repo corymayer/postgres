@@ -127,7 +127,7 @@ static bool before_stmt_triggers_fired(Oid relid, CmdType cmdType);
  *
  * If isInternal is true then this is an internally-generated trigger.
  * This argument sets the tgisinternal field of the pg_trigger entry, and
- * if TRUE causes us to modify the given trigger name to ensure uniqueness.
+ * if true causes us to modify the given trigger name to ensure uniqueness.
  *
  * When isInternal is not true we require ACL_TRIGGER permissions on the
  * relation, as well as ACL_EXECUTE on the trigger function.  For internal
@@ -3639,17 +3639,10 @@ GetCurrentFDWTuplestore(void)
 		 */
 		oldcxt = MemoryContextSwitchTo(CurTransactionContext);
 		saveResourceOwner = CurrentResourceOwner;
-		PG_TRY();
-		{
-			CurrentResourceOwner = CurTransactionResourceOwner;
-			ret = tuplestore_begin_heap(false, false, work_mem);
-		}
-		PG_CATCH();
-		{
-			CurrentResourceOwner = saveResourceOwner;
-			PG_RE_THROW();
-		}
-		PG_END_TRY();
+		CurrentResourceOwner = CurTransactionResourceOwner;
+
+		ret = tuplestore_begin_heap(false, false, work_mem);
+
 		CurrentResourceOwner = saveResourceOwner;
 		MemoryContextSwitchTo(oldcxt);
 
@@ -4131,10 +4124,10 @@ AfterTriggerExecute(AfterTriggerEvent event,
  *	If move_list isn't NULL, events that are not to be invoked now are
  *	transferred to move_list.
  *
- *	When immediate_only is TRUE, do not invoke currently-deferred triggers.
- *	(This will be FALSE only at main transaction exit.)
+ *	When immediate_only is true, do not invoke currently-deferred triggers.
+ *	(This will be false only at main transaction exit.)
  *
- *	Returns TRUE if any invokable events were found.
+ *	Returns true if any invokable events were found.
  */
 static bool
 afterTriggerMarkEvents(AfterTriggerEventList *events,
@@ -4198,14 +4191,14 @@ afterTriggerMarkEvents(AfterTriggerEventList *events,
  *	make one locally to cache the info in case there are multiple trigger
  *	events per rel.
  *
- *	When delete_ok is TRUE, it's safe to delete fully-processed events.
+ *	When delete_ok is true, it's safe to delete fully-processed events.
  *	(We are not very tense about that: we simply reset a chunk to be empty
  *	if all its events got fired.  The objective here is just to avoid useless
  *	rescanning of events when a trigger queues new events during transaction
  *	end, so it's not necessary to worry much about the case where only
  *	some events are fired.)
  *
- *	Returns TRUE if no unfired events remain in the list (this allows us
+ *	Returns true if no unfired events remain in the list (this allows us
  *	to avoid repeating afterTriggerMarkEvents).
  */
 static bool
@@ -4468,20 +4461,13 @@ MakeTransitionCaptureState(TriggerDesc *trigdesc, Oid relid, CmdType cmdType)
 	/* Now create required tuplestore(s), if we don't have them already. */
 	oldcxt = MemoryContextSwitchTo(CurTransactionContext);
 	saveResourceOwner = CurrentResourceOwner;
-	PG_TRY();
-	{
-		CurrentResourceOwner = CurTransactionResourceOwner;
-		if (need_old && table->old_tuplestore == NULL)
-			table->old_tuplestore = tuplestore_begin_heap(false, false, work_mem);
-		if (need_new && table->new_tuplestore == NULL)
-			table->new_tuplestore = tuplestore_begin_heap(false, false, work_mem);
-	}
-	PG_CATCH();
-	{
-		CurrentResourceOwner = saveResourceOwner;
-		PG_RE_THROW();
-	}
-	PG_END_TRY();
+	CurrentResourceOwner = CurTransactionResourceOwner;
+
+	if (need_old && table->old_tuplestore == NULL)
+		table->old_tuplestore = tuplestore_begin_heap(false, false, work_mem);
+	if (need_new && table->new_tuplestore == NULL)
+		table->new_tuplestore = tuplestore_begin_heap(false, false, work_mem);
+
 	CurrentResourceOwner = saveResourceOwner;
 	MemoryContextSwitchTo(oldcxt);
 

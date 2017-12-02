@@ -42,6 +42,7 @@
 #include "access/attnum.h"
 #include "access/sysattr.h"
 #include "access/transam.h"
+#include "catalog/pg_aggregate.h"
 #include "catalog/pg_am.h"
 #include "catalog/pg_attribute.h"
 #include "catalog/pg_cast.h"
@@ -2454,7 +2455,7 @@ getTableDataFKConstraints(void)
  *	In 8.4 and up we can rely on the conislocal field to decide which
  *	constraints must be dumped; much safer.
  *
- *	This function assumes all conislocal flags were initialized to TRUE.
+ *	This function assumes all conislocal flags were initialized to true.
  *	It clears the flag on anything that seems to be inherited.
  */
 static void
@@ -3474,12 +3475,15 @@ getPublications(Archive *fout)
 
 	resetPQExpBuffer(query);
 
+	/* Make sure we are in proper schema */
+	selectSourceSchema(fout, "pg_catalog");
+
 	/* Get the publications. */
 	appendPQExpBuffer(query,
 					  "SELECT p.tableoid, p.oid, p.pubname, "
 					  "(%s p.pubowner) AS rolname, "
 					  "p.puballtables, p.pubinsert, p.pubupdate, p.pubdelete "
-					  "FROM pg_catalog.pg_publication p",
+					  "FROM pg_publication p",
 					  username_subquery);
 
 	res = ExecuteSqlQuery(fout, query->data, PGRES_TUPLES_OK);
@@ -3630,6 +3634,9 @@ getPublicationTables(Archive *fout, TableInfo tblinfo[], int numTables)
 
 	query = createPQExpBuffer();
 
+	/* Make sure we are in proper schema */
+	selectSourceSchema(fout, "pg_catalog");
+
 	for (i = 0; i < numTables; i++)
 	{
 		TableInfo  *tbinfo = &tblinfo[i];
@@ -3655,8 +3662,7 @@ getPublicationTables(Archive *fout, TableInfo tblinfo[], int numTables)
 		/* Get the publication membership for the table. */
 		appendPQExpBuffer(query,
 						  "SELECT pr.tableoid, pr.oid, p.pubname "
-						  "FROM pg_catalog.pg_publication_rel pr,"
-						  "     pg_catalog.pg_publication p "
+						  "FROM pg_publication_rel pr, pg_publication p "
 						  "WHERE pr.prrelid = '%u'"
 						  "  AND p.oid = pr.prpubid",
 						  tbinfo->dobj.catId.oid);
@@ -3782,13 +3788,16 @@ getSubscriptions(Archive *fout)
 	if (dopt->no_subscriptions || fout->remoteVersion < 100000)
 		return;
 
+	/* Make sure we are in proper schema */
+	selectSourceSchema(fout, "pg_catalog");
+
 	if (!is_superuser(fout))
 	{
 		int			n;
 
 		res = ExecuteSqlQuery(fout,
 							  "SELECT count(*) FROM pg_subscription "
-							  "WHERE subdbid = (SELECT oid FROM pg_catalog.pg_database"
+							  "WHERE subdbid = (SELECT oid FROM pg_database"
 							  "                 WHERE datname = current_database())",
 							  PGRES_TUPLES_OK);
 		n = atoi(PQgetvalue(res, 0, 0));
@@ -3808,8 +3817,8 @@ getSubscriptions(Archive *fout)
 					  "(%s s.subowner) AS rolname, "
 					  " s.subconninfo, s.subslotname, s.subsynccommit, "
 					  " s.subpublications "
-					  "FROM pg_catalog.pg_subscription s "
-					  "WHERE s.subdbid = (SELECT oid FROM pg_catalog.pg_database"
+					  "FROM pg_subscription s "
+					  "WHERE s.subdbid = (SELECT oid FROM pg_database"
 					  "                   WHERE datname = current_database())",
 					  username_subquery);
 	res = ExecuteSqlQuery(fout, query->data, PGRES_TUPLES_OK);
@@ -6829,7 +6838,7 @@ getExtendedStatistics(Archive *fout, TableInfo tblinfo[], int numTables)
 						  "oid, "
 						  "stxname, "
 						  "pg_catalog.pg_get_statisticsobjdef(oid) AS stxdef "
-						  "FROM pg_statistic_ext "
+						  "FROM pg_catalog.pg_statistic_ext "
 						  "WHERE stxrelid = '%u' "
 						  "ORDER BY stxname", tbinfo->dobj.catId.oid);
 
@@ -11340,6 +11349,7 @@ dumpFunc(Archive *fout, FuncInfo *finfo)
 	char	   *funcargs;
 	char	   *funciargs;
 	char	   *funcresult;
+	bool		is_procedure;
 	char	   *proallargtypes;
 	char	   *proargmodes;
 	char	   *proargnames;
@@ -11361,6 +11371,7 @@ dumpFunc(Archive *fout, FuncInfo *finfo)
 	char	  **argnames = NULL;
 	char	  **configitems = NULL;
 	int			nconfigitems = 0;
+	const char *keyword;
 	int			i;
 
 	/* Skip if not to be dumped */
@@ -11504,7 +11515,11 @@ dumpFunc(Archive *fout, FuncInfo *finfo)
 	{
 		funcargs = PQgetvalue(res, 0, PQfnumber(res, "funcargs"));
 		funciargs = PQgetvalue(res, 0, PQfnumber(res, "funciargs"));
-		funcresult = PQgetvalue(res, 0, PQfnumber(res, "funcresult"));
+		is_procedure = PQgetisnull(res, 0, PQfnumber(res, "funcresult"));
+		if (is_procedure)
+			funcresult = NULL;
+		else
+			funcresult = PQgetvalue(res, 0, PQfnumber(res, "funcresult"));
 		proallargtypes = proargmodes = proargnames = NULL;
 	}
 	else
@@ -11513,6 +11528,7 @@ dumpFunc(Archive *fout, FuncInfo *finfo)
 		proargmodes = PQgetvalue(res, 0, PQfnumber(res, "proargmodes"));
 		proargnames = PQgetvalue(res, 0, PQfnumber(res, "proargnames"));
 		funcargs = funciargs = funcresult = NULL;
+		is_procedure = false;
 	}
 	if (PQfnumber(res, "protrftypes") != -1)
 		protrftypes = PQgetvalue(res, 0, PQfnumber(res, "protrftypes"));
@@ -11644,22 +11660,29 @@ dumpFunc(Archive *fout, FuncInfo *finfo)
 
 	funcsig_tag = format_function_signature(fout, finfo, false);
 
+	keyword = is_procedure ? "PROCEDURE" : "FUNCTION";
+
 	/*
 	 * DROP must be fully qualified in case same name appears in pg_catalog
 	 */
-	appendPQExpBuffer(delqry, "DROP FUNCTION %s.%s;\n",
+	appendPQExpBuffer(delqry, "DROP %s %s.%s;\n",
+					  keyword,
 					  fmtId(finfo->dobj.namespace->dobj.name),
 					  funcsig);
 
-	appendPQExpBuffer(q, "CREATE FUNCTION %s ", funcfullsig ? funcfullsig :
+	appendPQExpBuffer(q, "CREATE %s %s",
+					  keyword,
+					  funcfullsig ? funcfullsig :
 					  funcsig);
-	if (funcresult)
-		appendPQExpBuffer(q, "RETURNS %s", funcresult);
+	if (is_procedure)
+		;
+	else if (funcresult)
+		appendPQExpBuffer(q, " RETURNS %s", funcresult);
 	else
 	{
 		rettypename = getFormattedTypeName(fout, finfo->prorettype,
 										   zeroAsOpaque);
-		appendPQExpBuffer(q, "RETURNS %s%s",
+		appendPQExpBuffer(q, " RETURNS %s%s",
 						  (proretset[0] == 't') ? "SETOF " : "",
 						  rettypename);
 		free(rettypename);
@@ -11766,7 +11789,7 @@ dumpFunc(Archive *fout, FuncInfo *finfo)
 
 	appendPQExpBuffer(q, "\n    %s;\n", asPart->data);
 
-	appendPQExpBuffer(labelq, "FUNCTION %s", funcsig);
+	appendPQExpBuffer(labelq, "%s %s", keyword, funcsig);
 
 	if (dopt->binary_upgrade)
 		binary_upgrade_extension_member(q, &finfo->dobj, labelq->data);
@@ -11777,7 +11800,7 @@ dumpFunc(Archive *fout, FuncInfo *finfo)
 					 finfo->dobj.namespace->dobj.name,
 					 NULL,
 					 finfo->rolname, false,
-					 "FUNCTION", SECTION_PRE_DATA,
+					 keyword, SECTION_PRE_DATA,
 					 q->data, delqry->data, NULL,
 					 NULL, 0,
 					 NULL, NULL);
@@ -11794,7 +11817,7 @@ dumpFunc(Archive *fout, FuncInfo *finfo)
 					 finfo->dobj.catId, 0, finfo->dobj.dumpId);
 
 	if (finfo->dobj.dump & DUMP_COMPONENT_ACL)
-		dumpACL(fout, finfo->dobj.catId, finfo->dobj.dumpId, "FUNCTION",
+		dumpACL(fout, finfo->dobj.catId, finfo->dobj.dumpId, keyword,
 				funcsig, NULL, funcsig_tag,
 				finfo->dobj.namespace->dobj.name,
 				finfo->rolname, finfo->proacl, finfo->rproacl,
@@ -13159,7 +13182,7 @@ dumpCollation(Archive *fout, CollInfo *collinfo)
 						  collinfo->dobj.catId.oid);
 	else
 		appendPQExpBuffer(query, "SELECT "
-						  "'c'::char AS collprovider, "
+						  "'c' AS collprovider, "
 						  "collcollate, "
 						  "collctype, "
 						  "NULL AS collversion "
@@ -13433,8 +13456,10 @@ dumpAgg(Archive *fout, AggInfo *agginfo)
 	int			i_aggmfinalfn;
 	int			i_aggfinalextra;
 	int			i_aggmfinalextra;
+	int			i_aggfinalmodify;
+	int			i_aggmfinalmodify;
 	int			i_aggsortop;
-	int			i_hypothetical;
+	int			i_aggkind;
 	int			i_aggtranstype;
 	int			i_aggtransspace;
 	int			i_aggmtranstype;
@@ -13453,9 +13478,11 @@ dumpAgg(Archive *fout, AggInfo *agginfo)
 	const char *aggmfinalfn;
 	bool		aggfinalextra;
 	bool		aggmfinalextra;
+	char		aggfinalmodify;
+	char		aggmfinalmodify;
 	const char *aggsortop;
 	char	   *aggsortconvop;
-	bool		hypothetical;
+	char		aggkind;
 	const char *aggtranstype;
 	const char *aggtransspace;
 	const char *aggmtranstype;
@@ -13464,6 +13491,7 @@ dumpAgg(Archive *fout, AggInfo *agginfo)
 	const char *aggminitval;
 	bool		convertok;
 	const char *proparallel;
+	char		defaultfinalmodify;
 
 	/* Skip if not to be dumped */
 	if (!agginfo->aggfn.dobj.dump || dopt->dataOnly)
@@ -13479,15 +13507,37 @@ dumpAgg(Archive *fout, AggInfo *agginfo)
 	selectSourceSchema(fout, agginfo->aggfn.dobj.namespace->dobj.name);
 
 	/* Get aggregate-specific details */
-	if (fout->remoteVersion >= 90600)
+	if (fout->remoteVersion >= 110000)
 	{
 		appendPQExpBuffer(query, "SELECT aggtransfn, "
 						  "aggfinalfn, aggtranstype::pg_catalog.regtype, "
 						  "aggcombinefn, aggserialfn, aggdeserialfn, aggmtransfn, "
 						  "aggminvtransfn, aggmfinalfn, aggmtranstype::pg_catalog.regtype, "
 						  "aggfinalextra, aggmfinalextra, "
+						  "aggfinalmodify, aggmfinalmodify, "
 						  "aggsortop::pg_catalog.regoperator, "
-						  "(aggkind = 'h') AS hypothetical, "
+						  "aggkind, "
+						  "aggtransspace, agginitval, "
+						  "aggmtransspace, aggminitval, "
+						  "true AS convertok, "
+						  "pg_catalog.pg_get_function_arguments(p.oid) AS funcargs, "
+						  "pg_catalog.pg_get_function_identity_arguments(p.oid) AS funciargs, "
+						  "p.proparallel "
+						  "FROM pg_catalog.pg_aggregate a, pg_catalog.pg_proc p "
+						  "WHERE a.aggfnoid = p.oid "
+						  "AND p.oid = '%u'::pg_catalog.oid",
+						  agginfo->aggfn.dobj.catId.oid);
+	}
+	else if (fout->remoteVersion >= 90600)
+	{
+		appendPQExpBuffer(query, "SELECT aggtransfn, "
+						  "aggfinalfn, aggtranstype::pg_catalog.regtype, "
+						  "aggcombinefn, aggserialfn, aggdeserialfn, aggmtransfn, "
+						  "aggminvtransfn, aggmfinalfn, aggmtranstype::pg_catalog.regtype, "
+						  "aggfinalextra, aggmfinalextra, "
+						  "'0' AS aggfinalmodify, '0' AS aggmfinalmodify, "
+						  "aggsortop::pg_catalog.regoperator, "
+						  "aggkind, "
 						  "aggtransspace, agginitval, "
 						  "aggmtransspace, aggminitval, "
 						  "true AS convertok, "
@@ -13507,8 +13557,9 @@ dumpAgg(Archive *fout, AggInfo *agginfo)
 						  "'-' AS aggdeserialfn, aggmtransfn, aggminvtransfn, "
 						  "aggmfinalfn, aggmtranstype::pg_catalog.regtype, "
 						  "aggfinalextra, aggmfinalextra, "
+						  "'0' AS aggfinalmodify, '0' AS aggmfinalmodify, "
 						  "aggsortop::pg_catalog.regoperator, "
-						  "(aggkind = 'h') AS hypothetical, "
+						  "aggkind, "
 						  "aggtransspace, agginitval, "
 						  "aggmtransspace, aggminitval, "
 						  "true AS convertok, "
@@ -13528,8 +13579,9 @@ dumpAgg(Archive *fout, AggInfo *agginfo)
 						  "'-' AS aggminvtransfn, '-' AS aggmfinalfn, "
 						  "0 AS aggmtranstype, false AS aggfinalextra, "
 						  "false AS aggmfinalextra, "
+						  "'0' AS aggfinalmodify, '0' AS aggmfinalmodify, "
 						  "aggsortop::pg_catalog.regoperator, "
-						  "false AS hypothetical, "
+						  "'n' AS aggkind, "
 						  "0 AS aggtransspace, agginitval, "
 						  "0 AS aggmtransspace, NULL AS aggminitval, "
 						  "true AS convertok, "
@@ -13549,8 +13601,9 @@ dumpAgg(Archive *fout, AggInfo *agginfo)
 						  "'-' AS aggminvtransfn, '-' AS aggmfinalfn, "
 						  "0 AS aggmtranstype, false AS aggfinalextra, "
 						  "false AS aggmfinalextra, "
+						  "'0' AS aggfinalmodify, '0' AS aggmfinalmodify, "
 						  "aggsortop::pg_catalog.regoperator, "
-						  "false AS hypothetical, "
+						  "'n' AS aggkind, "
 						  "0 AS aggtransspace, agginitval, "
 						  "0 AS aggmtransspace, NULL AS aggminitval, "
 						  "true AS convertok "
@@ -13567,8 +13620,10 @@ dumpAgg(Archive *fout, AggInfo *agginfo)
 						  "'-' AS aggdeserialfn, '-' AS aggmtransfn, "
 						  "'-' AS aggminvtransfn, '-' AS aggmfinalfn, "
 						  "0 AS aggmtranstype, false AS aggfinalextra, "
-						  "false AS aggmfinalextra, 0 AS aggsortop, "
-						  "false AS hypothetical, "
+						  "false AS aggmfinalextra, "
+						  "'0' AS aggfinalmodify, '0' AS aggmfinalmodify, "
+						  "0 AS aggsortop, "
+						  "'n' AS aggkind, "
 						  "0 AS aggtransspace, agginitval, "
 						  "0 AS aggmtransspace, NULL AS aggminitval, "
 						  "true AS convertok "
@@ -13590,8 +13645,10 @@ dumpAgg(Archive *fout, AggInfo *agginfo)
 	i_aggmfinalfn = PQfnumber(res, "aggmfinalfn");
 	i_aggfinalextra = PQfnumber(res, "aggfinalextra");
 	i_aggmfinalextra = PQfnumber(res, "aggmfinalextra");
+	i_aggfinalmodify = PQfnumber(res, "aggfinalmodify");
+	i_aggmfinalmodify = PQfnumber(res, "aggmfinalmodify");
 	i_aggsortop = PQfnumber(res, "aggsortop");
-	i_hypothetical = PQfnumber(res, "hypothetical");
+	i_aggkind = PQfnumber(res, "aggkind");
 	i_aggtranstype = PQfnumber(res, "aggtranstype");
 	i_aggtransspace = PQfnumber(res, "aggtransspace");
 	i_aggmtranstype = PQfnumber(res, "aggmtranstype");
@@ -13611,8 +13668,10 @@ dumpAgg(Archive *fout, AggInfo *agginfo)
 	aggmfinalfn = PQgetvalue(res, 0, i_aggmfinalfn);
 	aggfinalextra = (PQgetvalue(res, 0, i_aggfinalextra)[0] == 't');
 	aggmfinalextra = (PQgetvalue(res, 0, i_aggmfinalextra)[0] == 't');
+	aggfinalmodify = PQgetvalue(res, 0, i_aggfinalmodify)[0];
+	aggmfinalmodify = PQgetvalue(res, 0, i_aggmfinalmodify)[0];
 	aggsortop = PQgetvalue(res, 0, i_aggsortop);
-	hypothetical = (PQgetvalue(res, 0, i_hypothetical)[0] == 't');
+	aggkind = PQgetvalue(res, 0, i_aggkind)[0];
 	aggtranstype = PQgetvalue(res, 0, i_aggtranstype);
 	aggtransspace = PQgetvalue(res, 0, i_aggtransspace);
 	aggmtranstype = PQgetvalue(res, 0, i_aggmtranstype);
@@ -13656,6 +13715,14 @@ dumpAgg(Archive *fout, AggInfo *agginfo)
 		return;
 	}
 
+	/* identify default modify flag for aggkind (must match DefineAggregate) */
+	defaultfinalmodify = (aggkind == AGGKIND_NORMAL) ? AGGMODIFY_READ_ONLY : AGGMODIFY_READ_WRITE;
+	/* replace omitted flags for old versions */
+	if (aggfinalmodify == '0')
+		aggfinalmodify = defaultfinalmodify;
+	if (aggmfinalmodify == '0')
+		aggmfinalmodify = defaultfinalmodify;
+
 	/* regproc and regtype output is already sufficiently quoted */
 	appendPQExpBuffer(details, "    SFUNC = %s,\n    STYPE = %s",
 					  aggtransfn, aggtranstype);
@@ -13678,6 +13745,25 @@ dumpAgg(Archive *fout, AggInfo *agginfo)
 						  aggfinalfn);
 		if (aggfinalextra)
 			appendPQExpBufferStr(details, ",\n    FINALFUNC_EXTRA");
+		if (aggfinalmodify != defaultfinalmodify)
+		{
+			switch (aggfinalmodify)
+			{
+				case AGGMODIFY_READ_ONLY:
+					appendPQExpBufferStr(details, ",\n    FINALFUNC_MODIFY = READ_ONLY");
+					break;
+				case AGGMODIFY_SHARABLE:
+					appendPQExpBufferStr(details, ",\n    FINALFUNC_MODIFY = SHARABLE");
+					break;
+				case AGGMODIFY_READ_WRITE:
+					appendPQExpBufferStr(details, ",\n    FINALFUNC_MODIFY = READ_WRITE");
+					break;
+				default:
+					exit_horribly(NULL, "unrecognized aggfinalmodify value for aggregate \"%s\"\n",
+								  agginfo->aggfn.dobj.name);
+					break;
+			}
+		}
 	}
 
 	if (strcmp(aggcombinefn, "-") != 0)
@@ -13715,6 +13801,25 @@ dumpAgg(Archive *fout, AggInfo *agginfo)
 						  aggmfinalfn);
 		if (aggmfinalextra)
 			appendPQExpBufferStr(details, ",\n    MFINALFUNC_EXTRA");
+		if (aggmfinalmodify != defaultfinalmodify)
+		{
+			switch (aggmfinalmodify)
+			{
+				case AGGMODIFY_READ_ONLY:
+					appendPQExpBufferStr(details, ",\n    MFINALFUNC_MODIFY = READ_ONLY");
+					break;
+				case AGGMODIFY_SHARABLE:
+					appendPQExpBufferStr(details, ",\n    MFINALFUNC_MODIFY = SHARABLE");
+					break;
+				case AGGMODIFY_READ_WRITE:
+					appendPQExpBufferStr(details, ",\n    MFINALFUNC_MODIFY = READ_WRITE");
+					break;
+				default:
+					exit_horribly(NULL, "unrecognized aggmfinalmodify value for aggregate \"%s\"\n",
+								  agginfo->aggfn.dobj.name);
+					break;
+			}
+		}
 	}
 
 	aggsortconvop = convertOperatorReference(fout, aggsortop);
@@ -13725,7 +13830,7 @@ dumpAgg(Archive *fout, AggInfo *agginfo)
 		free(aggsortconvop);
 	}
 
-	if (hypothetical)
+	if (aggkind == AGGKIND_HYPOTHETICAL)
 		appendPQExpBufferStr(details, ",\n    HYPOTHETICAL");
 
 	if (proparallel != NULL && proparallel[0] != PROPARALLEL_UNSAFE)
@@ -16466,13 +16571,16 @@ dumpSequence(Archive *fout, TableInfo *tbinfo)
 		/*
 		 * Before PostgreSQL 10, sequence metadata is in the sequence itself,
 		 * so switch to the sequence's schema instead of pg_catalog.
+		 *
+		 * Note: it might seem that 'bigint' potentially needs to be
+		 * schema-qualified, but actually that's a keyword.
 		 */
 
 		/* Make sure we are in proper schema */
 		selectSourceSchema(fout, tbinfo->dobj.namespace->dobj.name);
 
 		appendPQExpBuffer(query,
-						  "SELECT 'bigint'::name AS sequence_type, "
+						  "SELECT 'bigint' AS sequence_type, "
 						  "start_value, increment_by, max_value, min_value, "
 						  "cache_value, is_cycled FROM %s",
 						  fmtId(tbinfo->dobj.name));
@@ -16483,7 +16591,7 @@ dumpSequence(Archive *fout, TableInfo *tbinfo)
 		selectSourceSchema(fout, tbinfo->dobj.namespace->dobj.name);
 
 		appendPQExpBuffer(query,
-						  "SELECT 'bigint'::name AS sequence_type, "
+						  "SELECT 'bigint' AS sequence_type, "
 						  "0 AS start_value, increment_by, max_value, min_value, "
 						  "cache_value, is_cycled FROM %s",
 						  fmtId(tbinfo->dobj.name));

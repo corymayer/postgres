@@ -876,12 +876,12 @@ numeric_send(PG_FUNCTION_ARGS)
 
 	pq_begintypsend(&buf);
 
-	pq_sendint(&buf, x.ndigits, sizeof(int16));
-	pq_sendint(&buf, x.weight, sizeof(int16));
-	pq_sendint(&buf, x.sign, sizeof(int16));
-	pq_sendint(&buf, x.dscale, sizeof(int16));
+	pq_sendint16(&buf, x.ndigits);
+	pq_sendint16(&buf, x.weight);
+	pq_sendint16(&buf, x.sign);
+	pq_sendint16(&buf, x.dscale);
 	for (i = 0; i < x.ndigits; i++)
-		pq_sendint(&buf, x.digits[i], sizeof(NumericDigit));
+		pq_sendint16(&buf, x.digits[i]);
 
 	PG_RETURN_BYTEA_P(pq_endtypsend(&buf));
 }
@@ -3693,7 +3693,7 @@ numeric_avg_serialize(PG_FUNCTION_ARGS)
 	pq_sendbytes(&buf, VARDATA_ANY(sumX), VARSIZE_ANY_EXHDR(sumX));
 
 	/* maxScale */
-	pq_sendint(&buf, state->maxScale, 4);
+	pq_sendint32(&buf, state->maxScale);
 
 	/* maxScaleCount */
 	pq_sendint64(&buf, state->maxScaleCount);
@@ -3815,7 +3815,7 @@ numeric_serialize(PG_FUNCTION_ARGS)
 	pq_sendbytes(&buf, VARDATA_ANY(sumX2), VARSIZE_ANY_EXHDR(sumX2));
 
 	/* maxScale */
-	pq_sendint(&buf, state->maxScale, 4);
+	pq_sendint32(&buf, state->maxScale);
 
 	/* maxScaleCount */
 	pq_sendint64(&buf, state->maxScaleCount);
@@ -5527,7 +5527,7 @@ zero_var(NumericVar *var)
 static const char *
 set_var_from_str(const char *str, const char *cp, NumericVar *dest)
 {
-	bool		have_dp = FALSE;
+	bool		have_dp = false;
 	int			i;
 	unsigned char *decdigits;
 	int			sign = NUMERIC_POS;
@@ -5558,7 +5558,7 @@ set_var_from_str(const char *str, const char *cp, NumericVar *dest)
 
 	if (*cp == '.')
 	{
-		have_dp = TRUE;
+		have_dp = true;
 		cp++;
 	}
 
@@ -5591,7 +5591,7 @@ set_var_from_str(const char *str, const char *cp, NumericVar *dest)
 						(errcode(ERRCODE_INVALID_TEXT_REPRESENTATION),
 						 errmsg("invalid input syntax for type %s: \"%s\"",
 								"numeric", str)));
-			have_dp = TRUE;
+			have_dp = true;
 			cp++;
 		}
 		else
@@ -6160,7 +6160,7 @@ apply_typmod(NumericVar *var, int32 typmod)
 /*
  * Convert numeric to int8, rounding if needed.
  *
- * If overflow, return FALSE (no error is raised).  Return TRUE if okay.
+ * If overflow, return false (no error is raised).  Return true if okay.
  */
 static bool
 numericvar_to_int64(const NumericVar *var, int64 *result)
@@ -6279,7 +6279,7 @@ int64_to_numericvar(int64 val, NumericVar *var)
 /*
  * Convert numeric to int128, rounding if needed.
  *
- * If overflow, return FALSE (no error is raised).  Return TRUE if okay.
+ * If overflow, return false (no error is raised).  Return true if okay.
  */
 static bool
 numericvar_to_int128(const NumericVar *var, int128 *result)

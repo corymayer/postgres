@@ -398,9 +398,9 @@ static int parseServiceFile(const char *serviceFile,
 				 PQconninfoOption *options,
 				 PQExpBuffer errorMessage,
 				 bool *group_found);
-static char *pwdfMatchesString(char *buf, char *token);
-static char *passwordFromFile(char *hostname, char *port, char *dbname,
-				 char *username, char *pgpassfile);
+static char *pwdfMatchesString(char *buf, const char *token);
+static char *passwordFromFile(const char *hostname, const char *port, const char *dbname,
+				 const char *username, const char *pgpassfile);
 static void pgpassfileWarning(PGconn *conn);
 static void default_threadlock(int acquire);
 
@@ -1063,52 +1063,51 @@ connectOptions2(PGconn *conn)
 	 */
 	if (conn->pgpass == NULL || conn->pgpass[0] == '\0')
 	{
-		int			i;
-
+		/* If password file wasn't specified, use ~/PGPASSFILE */
 		if (conn->pgpassfile == NULL || conn->pgpassfile[0] == '\0')
 		{
-			/* Identify password file to use; fail if we can't */
 			char		homedir[MAXPGPATH];
 
-			if (!pqGetHomeDirectory(homedir, sizeof(homedir)))
+			if (pqGetHomeDirectory(homedir, sizeof(homedir)))
 			{
-				conn->status = CONNECTION_BAD;
-				printfPQExpBuffer(&conn->errorMessage,
-								  libpq_gettext("could not get home directory to locate password file\n"));
-				return false;
+				if (conn->pgpassfile)
+					free(conn->pgpassfile);
+				conn->pgpassfile = malloc(MAXPGPATH);
+				if (!conn->pgpassfile)
+					goto oom_error;
+				snprintf(conn->pgpassfile, MAXPGPATH, "%s/%s",
+						 homedir, PGPASSFILE);
 			}
-
-			if (conn->pgpassfile)
-				free(conn->pgpassfile);
-			conn->pgpassfile = malloc(MAXPGPATH);
-			if (!conn->pgpassfile)
-				goto oom_error;
-
-			snprintf(conn->pgpassfile, MAXPGPATH, "%s/%s", homedir, PGPASSFILE);
 		}
 
-		for (i = 0; i < conn->nconnhost; i++)
+		if (conn->pgpassfile != NULL && conn->pgpassfile[0] != '\0')
 		{
-			/*
-			 * Try to get a password for this host from pgpassfile. We use
-			 * host name rather than host address in the same manner to
-			 * PQhost().
-			 */
-			char	   *pwhost = conn->connhost[i].host;
+			int			i;
 
-			if (conn->connhost[i].type == CHT_HOST_ADDRESS &&
-				conn->connhost[i].host != NULL && conn->connhost[i].host[0] != '\0')
-				pwhost = conn->connhost[i].hostaddr;
+			for (i = 0; i < conn->nconnhost; i++)
+			{
+				/*
+				 * Try to get a password for this host from pgpassfile. We use
+				 * host name rather than host address in the same manner as
+				 * PQhost().
+				 */
+				char	   *pwhost = conn->connhost[i].host;
 
-			conn->connhost[i].password =
-				passwordFromFile(pwhost,
-								 conn->connhost[i].port,
-								 conn->dbName,
-								 conn->pguser,
-								 conn->pgpassfile);
-			/* If we got one, set pgpassfile_used */
-			if (conn->connhost[i].password != NULL)
-				conn->pgpassfile_used = true;
+				if (conn->connhost[i].type == CHT_HOST_ADDRESS &&
+					conn->connhost[i].host != NULL &&
+					conn->connhost[i].host[0] != '\0')
+					pwhost = conn->connhost[i].hostaddr;
+
+				conn->connhost[i].password =
+					passwordFromFile(pwhost,
+									 conn->connhost[i].port,
+									 conn->dbName,
+									 conn->pguser,
+									 conn->pgpassfile);
+				/* If we got one, set pgpassfile_used */
+				if (conn->connhost[i].password != NULL)
+					conn->pgpassfile_used = true;
+			}
 		}
 	}
 
@@ -3587,7 +3586,7 @@ closePGconn(PGconn *conn)
 	 * Don't call PQsetnonblocking() because it will fail if it's unable to
 	 * flush the connection.
 	 */
-	conn->nonblocking = FALSE;
+	conn->nonblocking = false;
 
 	/*
 	 * Close the connection, reset all transient state, flush I/O buffers.
@@ -3782,8 +3781,8 @@ PQfreeCancel(PGcancel *cancel)
  * PQcancel and PQrequestCancel: attempt to request cancellation of the
  * current operation.
  *
- * The return value is TRUE if the cancel request was successfully
- * dispatched, FALSE if not (in which case an error message is available).
+ * The return value is true if the cancel request was successfully
+ * dispatched, false if not (in which case an error message is available).
  * Note: successful dispatch is no guarantee that there will be any effect at
  * the backend.  The application must read the operation result as usual.
  *
@@ -3872,7 +3871,7 @@ retry5:
 	/* All done */
 	closesocket(tmpsock);
 	SOCK_ERRNO_SET(save_errno);
-	return TRUE;
+	return true;
 
 cancel_errReturn:
 
@@ -3890,13 +3889,13 @@ cancel_errReturn:
 	if (tmpsock != PGINVALID_SOCKET)
 		closesocket(tmpsock);
 	SOCK_ERRNO_SET(save_errno);
-	return FALSE;
+	return false;
 }
 
 /*
  * PQcancel: request query cancel
  *
- * Returns TRUE if able to send the cancel request, FALSE if not.
+ * Returns true if able to send the cancel request, false if not.
  *
  * On failure, an error message is stored in *errbuf, which must be of size
  * errbufsize (recommended size is 256 bytes).  *errbuf is not changed on
@@ -3908,7 +3907,7 @@ PQcancel(PGcancel *cancel, char *errbuf, int errbufsize)
 	if (!cancel)
 	{
 		strlcpy(errbuf, "PQcancel() -- no cancel object supplied", errbufsize);
-		return FALSE;
+		return false;
 	}
 
 	return internal_cancel(&cancel->raddr, cancel->be_pid, cancel->be_key,
@@ -3918,7 +3917,7 @@ PQcancel(PGcancel *cancel, char *errbuf, int errbufsize)
 /*
  * PQrequestCancel: old, not thread-safe function for requesting query cancel
  *
- * Returns TRUE if able to send the cancel request, FALSE if not.
+ * Returns true if able to send the cancel request, false if not.
  *
  * On failure, the error message is saved in conn->errorMessage; this means
  * that this can't be used when there might be other active operations on
@@ -3934,7 +3933,7 @@ PQrequestCancel(PGconn *conn)
 
 	/* Check we have an open connection */
 	if (!conn)
-		return FALSE;
+		return false;
 
 	if (conn->sock == PGINVALID_SOCKET)
 	{
@@ -3943,7 +3942,7 @@ PQrequestCancel(PGconn *conn)
 				conn->errorMessage.maxlen);
 		conn->errorMessage.len = strlen(conn->errorMessage.data);
 
-		return FALSE;
+		return false;
 	}
 
 	r = internal_cancel(&conn->raddr, conn->be_pid, conn->be_key,
@@ -4469,6 +4468,16 @@ ldapServiceLookup(const char *purl, PQconninfoOption *options,
 
 #define MAXBUFSIZE 256
 
+/*
+ * parseServiceInfo: if a service name has been given, look it up and absorb
+ * connection options from it into *options.
+ *
+ * Returns 0 on success, nonzero on failure.  On failure, if errorMessage
+ * isn't null, also store an error message there.  (Note: the only reason
+ * this function and related ones don't dump core on errorMessage == NULL
+ * is the undocumented fact that printfPQExpBuffer does nothing when passed
+ * a null PQExpBuffer pointer.)
+ */
 static int
 parseServiceInfo(PQconninfoOption *options, PQExpBuffer errorMessage)
 {
@@ -4487,9 +4496,14 @@ parseServiceInfo(PQconninfoOption *options, PQExpBuffer errorMessage)
 	if (service == NULL)
 		service = getenv("PGSERVICE");
 
+	/* If no service name given, nothing to do */
 	if (service == NULL)
 		return 0;
 
+	/*
+	 * Try PGSERVICEFILE if specified, else try ~/.pg_service.conf (if that
+	 * exists).
+	 */
 	if ((env = getenv("PGSERVICEFILE")) != NULL)
 		strlcpy(serviceFile, env, sizeof(serviceFile));
 	else
@@ -4497,13 +4511,9 @@ parseServiceInfo(PQconninfoOption *options, PQExpBuffer errorMessage)
 		char		homedir[MAXPGPATH];
 
 		if (!pqGetHomeDirectory(homedir, sizeof(homedir)))
-		{
-			printfPQExpBuffer(errorMessage, libpq_gettext("could not get home directory to locate service definition file"));
-			return 1;
-		}
+			goto next_file;
 		snprintf(serviceFile, MAXPGPATH, "%s/%s", homedir, ".pg_service.conf");
-		errno = 0;
-		if (stat(serviceFile, &stat_buf) != 0 && errno == ENOENT)
+		if (stat(serviceFile, &stat_buf) != 0)
 			goto next_file;
 	}
 
@@ -4519,8 +4529,7 @@ next_file:
 	 */
 	snprintf(serviceFile, MAXPGPATH, "%s/pg_service.conf",
 			 getenv("PGSYSCONFDIR") ? getenv("PGSYSCONFDIR") : SYSCONFDIR);
-	errno = 0;
-	if (stat(serviceFile, &stat_buf) != 0 && errno == ENOENT)
+	if (stat(serviceFile, &stat_buf) != 0)
 		goto last_file;
 
 	status = parseServiceFile(serviceFile, service, options, errorMessage, &group_found);
@@ -4772,7 +4781,7 @@ conninfo_init(PQExpBuffer errorMessage)
  * Returns a malloc'd PQconninfoOption array, if parsing is successful.
  * Otherwise, NULL is returned and an error message is left in errorMessage.
  *
- * If use_defaults is TRUE, default values are filled in (from a service file,
+ * If use_defaults is true, default values are filled in (from a service file,
  * environment variables, etc).
  */
 static PQconninfoOption *
@@ -4995,7 +5004,7 @@ conninfo_parse(const char *conninfo, PQExpBuffer errorMessage,
  * If not successful, NULL is returned and an error message is
  * left in errorMessage.
  * Defaults are supplied (from a service file, environment variables, etc)
- * for unspecified options, but only if use_defaults is TRUE.
+ * for unspecified options, but only if use_defaults is true.
  *
  * If expand_dbname is non-zero, and the value passed for the first occurrence
  * of "dbname" keyword is a connection string (as indicated by
@@ -5166,7 +5175,7 @@ conninfo_array_parse(const char *const *keywords, const char *const *values,
  *
  * Defaults are obtained from a service file, environment variables, etc.
  *
- * Returns TRUE if successful, otherwise FALSE; errorMessage, if supplied,
+ * Returns true if successful, otherwise false; errorMessage, if supplied,
  * is filled in upon failure.  Note that failure to locate a default value
  * is not an error condition here --- we just leave the option's value as
  * NULL.
@@ -5817,7 +5826,7 @@ conninfo_getval(PQconninfoOption *connOptions,
  *
  * If not successful, returns NULL and fills errorMessage accordingly.
  * However, if the reason of failure is an invalid keyword being passed and
- * ignoreMissing is TRUE, errorMessage will be left untouched.
+ * ignoreMissing is true, errorMessage will be left untouched.
  */
 static PQconninfoOption *
 conninfo_storeval(PQconninfoOption *connOptions,
@@ -6320,10 +6329,10 @@ defaultNoticeProcessor(void *arg, const char *message)
  * token doesn't match
  */
 static char *
-pwdfMatchesString(char *buf, char *token)
+pwdfMatchesString(char *buf, const char *token)
 {
-	char	   *tbuf,
-			   *ttok;
+	char	   *tbuf;
+	const char *ttok;
 	bool		bslash = false;
 
 	if (buf == NULL || token == NULL)
@@ -6357,8 +6366,8 @@ pwdfMatchesString(char *buf, char *token)
 
 /* Get a password from the password file. Return value is malloc'd. */
 static char *
-passwordFromFile(char *hostname, char *port, char *dbname,
-				 char *username, char *pgpassfile)
+passwordFromFile(const char *hostname, const char *port, const char *dbname,
+				 const char *username, const char *pgpassfile)
 {
 	FILE	   *fp;
 	struct stat stat_buf;
@@ -6510,7 +6519,15 @@ pgpassfileWarning(PGconn *conn)
  *
  * This is essentially the same as get_home_path(), but we don't use that
  * because we don't want to pull path.c into libpq (it pollutes application
- * namespace)
+ * namespace).
+ *
+ * Returns true on success, false on failure to obtain the directory name.
+ *
+ * CAUTION: although in most situations failure is unexpected, there are users
+ * who like to run applications in a home-directory-less environment.  On
+ * failure, you almost certainly DO NOT want to report an error.  Just act as
+ * though whatever file you were hoping to find in the home directory isn't
+ * there (which it isn't).
  */
 bool
 pqGetHomeDirectory(char *buf, int bufsize)
