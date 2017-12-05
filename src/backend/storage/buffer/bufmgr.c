@@ -1800,7 +1800,7 @@ UnpinBuffer(BufferDesc *buf, bool fixOwner)
 		ForgetPrivateRefCountEntry(ref);
 	}
 
-	RePinBufferIfPossible(BufferDesc *buf);
+	RePinBufferIfPossible(buf);
 }
 
 /*
