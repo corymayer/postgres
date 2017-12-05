@@ -1682,6 +1682,43 @@ PinBuffer_Locked(BufferDesc *buf)
 	ResourceOwnerRememberBuffer(CurrentResourceOwner, b);
 }
 
+/**
+ * Re-pins the buffer to ensure pages stay in main memory.
+ */
+static void RePinBufferIfPossible(BufferDesc *buf) {
+	PrivateRefCountEntry *ref;
+	bool valid;
+	Buffer		b = BufferDescriptorGetBuffer(buf);
+
+	ref = GetPrivateRefCountEntry(b, false);
+	Assert(ref != NULL);
+
+	// make sure there are no references to the buffer
+	if (ref->refcount == 0) {
+		valid = PinBuffer(buf, NULL);
+
+		if (!valid)
+				{
+					/*
+					 * We can only get here if (a) someone else is still reading in
+					 * the page, or (b) a previous read attempt failed.  We have to
+					 * wait for any active read attempt to finish, and then set up our
+					 * own read attempt if the page is still not BM_VALID.
+					 * StartBufferIO does it all.
+					 */
+					if (StartBufferIO(buf, true))
+					{
+						ereport(ERROR, (errmsg("Buffer pin failed"),
+										errhint("Ensure that no other read attempts are in process.")));
+					}
+				}
+	}
+	else {
+		ereport(ERROR, (errmsg("Unexpected references to buffer"),
+						errhint("There may be a problem with your system.")));
+	}
+}
+
 /*
  * UnpinBuffer -- make buffer available for replacement.
  *
@@ -1762,6 +1799,8 @@ UnpinBuffer(BufferDesc *buf, bool fixOwner)
 		}
 		ForgetPrivateRefCountEntry(ref);
 	}
+
+	RePinBufferIfPossible(BufferDesc *buf);
 }
 
 /*
