@@ -423,18 +423,13 @@ BufFileLoadBuffer(BufFile *file)
 	 * May need to reposition physical file.
 	 */
 	thisfile = file->files[file->curFile];
-	if (file->curOffset != file->offsets[file->curFile])
-	{
-		if (FileSeek(thisfile, file->curOffset, SEEK_SET) != file->curOffset)
-			return;				/* seek failed, read nothing */
-		file->offsets[file->curFile] = file->curOffset;
-	}
 
 	/*
 	 * Read whatever we can get, up to a full bufferload.
 	 */
 	file->nbytes = FileRead(thisfile,
 							file->buffer,
+							file->curOffset,
 							sizeof(file->buffer),
 							WAIT_EVENT_BUFFILE_READ);
 	if (file->nbytes < 0)

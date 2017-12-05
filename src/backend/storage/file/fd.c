@@ -1891,7 +1891,7 @@ FileWriteback(File file, off_t offset, off_t nbytes, uint32 wait_event_info)
 }
 
 int
-FileRead(File file, char *buffer, int amount, uint32 wait_event_info)
+FileRead(File file, char *buffer, off_t offset, int amount, uint32 wait_event_info)
 {
 	int			returnCode;
 	Vfd		   *vfdP;
@@ -1911,7 +1911,7 @@ FileRead(File file, char *buffer, int amount, uint32 wait_event_info)
 
 retry:
 	pgstat_report_wait_start(wait_event_info);
-	returnCode = read(vfdP->fd, buffer, amount);
+	returnCode = pread(vfdP->fd, buffer, amount, offset);
 	pgstat_report_wait_end();
 
 	if (returnCode >= 0)

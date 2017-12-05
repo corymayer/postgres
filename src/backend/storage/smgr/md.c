@@ -748,13 +748,7 @@ mdread(SMgrRelation reln, ForkNumber forknum, BlockNumber blocknum,
 
 	Assert(seekpos < (off_t) BLCKSZ * RELSEG_SIZE);
 
-	if (FileSeek(v->mdfd_vfd, seekpos, SEEK_SET) != seekpos)
-		ereport(ERROR,
-				(errcode_for_file_access(),
-				 errmsg("could not seek to block %u in file \"%s\": %m",
-						blocknum, FilePathName(v->mdfd_vfd))));
-
-	nbytes = FileRead(v->mdfd_vfd, buffer, BLCKSZ, WAIT_EVENT_DATA_FILE_READ);
+	nbytes = FileRead(v->mdfd_vfd, buffer, seekpos, BLCKSZ, WAIT_EVENT_DATA_FILE_READ);
 
 	TRACE_POSTGRESQL_SMGR_MD_READ_DONE(forknum, blocknum,
 									   reln->smgr_rnode.node.spcNode,
