@@ -1,0 +1,22 @@
+
+ customer       |         104720 |         52451 |          5108 |       820837
+ lineitem       |        5600505 |       3847984 |        424038 |     38977568
+ nation         |             11 |          5204 |            16 |         5215
+ orders         |        3861291 |       1485788 |        435360 |     12242392
+ part           |          89517 |         50131 |          2232 |      1051448
+ partsupp       |         397805 |        342960 |         17704 |      4746965
+ region         |              5 |          1295 |             8 |           19
+ supplier       |          15866 |        684152 |           266 |      1422630
+ tmp_orderkey1  |              9 |          1531 |               |             
+ tmp_orderkey10 |              0 |             0 |               |             
+ tmp_orderkey11 |              0 |             0 |               |             
+ tmp_orderkey12 |              0 |             0 |               |             
+ tmp_orderkey2  |              0 |             0 |               |             
+ tmp_orderkey3  |              0 |             0 |               |             
+ tmp_orderkey4  |              0 |             0 |               |             
+ tmp_orderkey5  |              0 |             0 |               |             
+ tmp_orderkey6  |              0 |             0 |               |             
+ tmp_orderkey7  |              0 |             0 |               |             
+ tmp_orderkey8  |              0 |             0 |               |             
+ tmp_orderkey9  |              0 |             0 |               |             
+

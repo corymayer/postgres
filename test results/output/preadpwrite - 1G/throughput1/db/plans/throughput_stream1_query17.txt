@@ -1,0 +1,18 @@
+ EXPLAIN select sum(l_extendedprice) / 7.0 as avg_yearly from lineitem, part where p_partkey = l_partkey and p_brand = 'Brand#22' and p_container = 'JUMBO CASE' and l_quantity < ( select 0.2 * avg(l_quantity) from lineitem where l_partkey = p_partkey );
+                                               QUERY PLAN                                               
+--------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=790500.08..790500.09 rows=1 width=8)
+   ->  Nested Loop  (cost=0.43..790495.27 rows=1922 width=4)
+         ->  Seq Scan on part  (cost=0.00..7064.00 rows=192 width=4)
+               Filter: ((p_brand = 'Brand#22'::bpchar) AND (p_container = 'JUMBO CASE'::bpchar))
+         ->  Index Scan using i_l_partkey on lineitem  (cost=0.43..4080.27 rows=10 width=12)
+               Index Cond: (l_partkey = part.p_partkey)
+               Filter: (l_quantity < (SubPlan 1))
+               SubPlan 1
+                 ->  Aggregate  (cost=127.56..127.57 rows=1 width=8)
+                       ->  Bitmap Heap Scan on lineitem lineitem_1  (cost=4.67..127.48 rows=31 width=4)
+                             Recheck Cond: (l_partkey = part.p_partkey)
+                             ->  Bitmap Index Scan on i_l_partkey  (cost=0.00..4.67 rows=31 width=0)
+                                   Index Cond: (l_partkey = part.p_partkey)
+(13 rows)
+

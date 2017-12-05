@@ -1,0 +1,25 @@
+
+ customer | customer_pkey         |    25525 |       625519 |        625519
+ customer | i_c_nationkey         |        0 |            0 |             0
+ lineitem | i_l_commitdate        |        0 |            0 |             0
+ lineitem | i_l_orderkey          |   556197 |     37212665 |      37212665
+ lineitem | i_l_orderkey_quantity |       76 |           76 |            76
+ lineitem | i_l_partkey           |    16802 |       512085 |        512085
+ lineitem | i_l_receiptdate       |        0 |            0 |             0
+ lineitem | i_l_shipdate          |        2 |       602717 |             0
+ lineitem | i_l_suppkey           |     4860 |      2886219 |       2886219
+ lineitem | i_l_suppkey_partkey   |   111608 |       836463 |        836463
+ nation   | i_n_regionkey         |        0 |            0 |             0
+ orders   | i_o_custkey           |   421656 |      3866539 |       3866539
+ orders   | i_o_orderdate         |        4 |       457118 |             0
+ partsupp | i_ps_partkey          |    29228 |       116816 |        116816
+ partsupp | i_ps_suppkey          |     5700 |       452208 |        452208
+ supplier | i_s_nationkey         |        6 |         4735 |             0
+ lineitem | lineitem_pkey         |   380529 |      1522230 |       1522230
+ nation   | nation_pkey           |     5296 |         5296 |          5296
+ orders   | orders_pkey           |   838123 |       838123 |        838123
+ part     | part_pkey             |       55 |       400052 |        400052
+ partsupp | partsupp_pkey         |        0 |            0 |             0
+ region   | region_pkey           |       16 |           16 |            16
+ supplier | supplier_pkey         |   685452 |       745449 |        745449
+

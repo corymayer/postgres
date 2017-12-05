@@ -1,0 +1,129 @@
+
+    relname    | pid  |       mode       | granted 
+---------------+------+------------------+---------
+ customer      | 7059 | RowExclusiveLock | t
+ customer_pkey | 7059 | RowExclusiveLock | t
+ lineitem      | 7066 | RowExclusiveLock | t
+ lineitem_pkey | 7066 | RowExclusiveLock | t
+ orders        | 7064 | RowExclusiveLock | t
+ orders_pkey   | 7064 | RowExclusiveLock | t
+ part          | 7058 | RowExclusiveLock | t
+ part_pkey     | 7058 | RowExclusiveLock | t
+ partsupp      | 7061 | RowExclusiveLock | t
+ partsupp_pkey | 7061 | RowExclusiveLock | t
+ pg_locks      | 7071 | AccessShareLock  | t
+ supplier      | 7055 | RowExclusiveLock | t
+ supplier_pkey | 7055 | RowExclusiveLock | t
+(13 rows)
+
+    relname    | pid  |           mode           | granted 
+---------------+------+--------------------------+---------
+ lineitem      | 7066 | RowExclusiveLock         | t
+ lineitem_pkey | 7066 | RowExclusiveLock         | t
+ part          | 7083 | ShareUpdateExclusiveLock | t
+ part_pkey     | 7083 | AccessShareLock          | t
+ pg_locks      | 7087 | AccessShareLock          | t
+(5 rows)
+
+    relname    | pid  |           mode           | granted 
+---------------+------+--------------------------+---------
+ customer      | 7083 | ShareUpdateExclusiveLock | t
+ customer_pkey | 7083 | AccessShareLock          | t
+ lineitem      | 7066 | RowExclusiveLock         | t
+ lineitem_pkey | 7066 | RowExclusiveLock         | t
+ orders        | 7100 | ShareUpdateExclusiveLock | t
+ orders_pkey   | 7100 | AccessShareLock          | t
+ pg_locks      | 7104 | AccessShareLock          | t
+(7 rows)
+
+    relname    | pid  |           mode           | granted 
+---------------+------+--------------------------+---------
+ lineitem      | 7066 | RowExclusiveLock         | t
+ lineitem      | 7066 | ExclusiveLock            | t
+ lineitem_pkey | 7066 | RowExclusiveLock         | t
+ orders        | 7100 | ShareUpdateExclusiveLock | t
+ orders_pkey   | 7100 | AccessShareLock          | t
+ partsupp      | 7116 | ShareUpdateExclusiveLock | t
+ partsupp_pkey | 7116 | AccessShareLock          | t
+ pg_locks      | 7120 | AccessShareLock          | t
+(8 rows)
+
+ relname  | pid  |      mode       | granted 
+----------+------+-----------------+---------
+ lineitem | 7180 | ShareLock       | t
+ lineitem | 7174 | ShareLock       | t
+ lineitem | 7168 | ShareLock       | t
+ lineitem | 7172 | ShareLock       | t
+ lineitem | 7166 | ShareLock       | t
+ lineitem | 7170 | ShareLock       | t
+ lineitem | 7167 | ShareLock       | t
+ lineitem | 7171 | ShareLock       | t
+ orders   | 7179 | ShareLock       | t
+ orders   | 7178 | ShareLock       | t
+ partsupp | 7173 | ShareLock       | t
+ partsupp | 7175 | ShareLock       | t
+ pg_locks | 7185 | AccessShareLock | t
+(13 rows)
+
+        relname        | pid  |       mode       | granted 
+-----------------------+------+------------------+---------
+ i_l_commitdate        | 7560 | RowExclusiveLock | t
+ i_l_orderkey          | 7560 | RowExclusiveLock | t
+ i_l_orderkey_quantity | 7560 | RowExclusiveLock | t
+ i_l_partkey           | 7560 | RowExclusiveLock | t
+ i_l_receiptdate       | 7560 | RowExclusiveLock | t
+ i_l_shipdate          | 7560 | RowExclusiveLock | t
+ i_l_suppkey           | 7560 | RowExclusiveLock | t
+ i_l_suppkey_partkey   | 7560 | RowExclusiveLock | t
+ lineitem              | 7560 | RowExclusiveLock | t
+ lineitem_pkey         | 7560 | RowExclusiveLock | t
+ pg_locks              | 7563 | AccessShareLock  | t
+(11 rows)
+
+        relname        | pid  |       mode       | granted 
+-----------------------+------+------------------+---------
+ i_l_commitdate        | 7664 | RowExclusiveLock | t
+ i_l_orderkey          | 7664 | RowExclusiveLock | t
+ i_l_orderkey_quantity | 7664 | RowExclusiveLock | t
+ i_l_partkey           | 7664 | RowExclusiveLock | t
+ i_l_receiptdate       | 7664 | RowExclusiveLock | t
+ i_l_shipdate          | 7664 | RowExclusiveLock | t
+ i_l_suppkey           | 7664 | RowExclusiveLock | t
+ i_l_suppkey_partkey   | 7664 | RowExclusiveLock | t
+ lineitem              | 7664 | RowExclusiveLock | t
+ lineitem_pkey         | 7664 | RowExclusiveLock | t
+ pg_locks              | 7679 | AccessShareLock  | t
+ tmp_orderkey1         | 7664 | AccessShareLock  | t
+(12 rows)
+
+        relname        | pid  |       mode       | granted 
+-----------------------+------+------------------+---------
+ customer              | 7957 | AccessShareLock  | t
+ customer              | 8013 | AccessShareLock  | t
+ customer              | 8012 | AccessShareLock  | t
+ customer_pkey         | 8012 | AccessShareLock  | t
+ customer_pkey         | 8013 | AccessShareLock  | t
+ customer_pkey         | 7957 | AccessShareLock  | t
+ i_c_nationkey         | 7957 | AccessShareLock  | t
+ i_l_commitdate        | 8089 | RowExclusiveLock | t
+ i_l_orderkey          | 8089 | RowExclusiveLock | t
+ i_l_orderkey_quantity | 8089 | RowExclusiveLock | t
+ i_l_partkey           | 8089 | RowExclusiveLock | t
+ i_l_receiptdate       | 8089 | RowExclusiveLock | t
+ i_l_shipdate          | 8089 | RowExclusiveLock | t
+ i_l_suppkey           | 8089 | RowExclusiveLock | t
+ i_l_suppkey_partkey   | 8089 | RowExclusiveLock | t
+ i_o_custkey           | 7957 | AccessShareLock  | t
+ i_o_custkey           | 8012 | AccessShareLock  | t
+ i_o_custkey           | 8013 | AccessShareLock  | t
+ i_o_orderdate         | 7957 | AccessShareLock  | t
+ lineitem              | 8089 | RowExclusiveLock | t
+ lineitem_pkey         | 8089 | RowExclusiveLock | t
+ orders                | 8012 | AccessShareLock  | t
+ orders                | 8013 | AccessShareLock  | t
+ orders                | 7957 | AccessShareLock  | t
+ orders_pkey           | 7957 | AccessShareLock  | t
+ pg_locks              | 8107 | AccessShareLock  | t
+ tmp_orderkey3         | 8089 | AccessShareLock  | t
+(27 rows)
+

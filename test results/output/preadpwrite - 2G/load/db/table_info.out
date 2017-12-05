@@ -1,0 +1,85 @@
+
+ customer       |              0 |             0 |             0 |            0
+ lineitem       |              0 |             0 |             0 |            0
+ nation         |              1 |             0 |             2 |           25
+ orders         |              0 |             0 |             0 |            0
+ part           |              0 |             0 |             0 |            0
+ partsupp       |              0 |             0 |             0 |            0
+ region         |              1 |             0 |             2 |            5
+ supplier       |              0 |             0 |             0 |            0
+ tmp_orderkey1  |             20 |          1551 |               |             
+ tmp_orderkey10 |              0 |             0 |               |             
+ tmp_orderkey11 |              0 |             0 |               |             
+ tmp_orderkey12 |              0 |             0 |               |             
+ tmp_orderkey2  |             34 |          1530 |               |             
+ tmp_orderkey3  |             23 |          1524 |               |             
+ tmp_orderkey4  |              0 |             0 |               |             
+ tmp_orderkey5  |              0 |             0 |               |             
+ tmp_orderkey6  |              0 |             0 |               |             
+ tmp_orderkey7  |              0 |             0 |               |             
+ tmp_orderkey8  |              0 |             0 |               |             
+ tmp_orderkey9  |              0 |             0 |               |             
+
+ customer       |           7065 |         16309 |           825 |       751047
+ lineitem       |              0 |             0 |             0 |            0
+ nation         |              1 |             0 |             2 |           25
+ orders         |          50670 |        108711 |          8228 |      8858450
+ part           |           8129 |         16507 |          1099 |      1051321
+ partsupp       |          34349 |         87962 |          4389 |      4654611
+ region         |              1 |             0 |             2 |            5
+ supplier       |            438 |           976 |            57 |        39648
+ tmp_orderkey1  |             20 |          1551 |               |             
+ tmp_orderkey10 |              0 |             0 |               |             
+ tmp_orderkey11 |              0 |             0 |               |             
+ tmp_orderkey12 |              0 |             0 |               |             
+ tmp_orderkey2  |             34 |          1530 |               |             
+ tmp_orderkey3  |             23 |          1524 |               |             
+ tmp_orderkey4  |              0 |             0 |               |             
+ tmp_orderkey5  |              0 |             0 |               |             
+ tmp_orderkey6  |              0 |             0 |               |             
+ tmp_orderkey7  |              0 |             0 |               |             
+ tmp_orderkey8  |              0 |             0 |               |             
+ tmp_orderkey9  |              0 |             0 |               |             
+
+ customer       |          18251 |         16309 |           825 |       751047
+ lineitem       |         213155 |        461619 |         32899 |     35877109
+ nation         |              2 |             0 |             2 |           25
+ orders         |          50670 |        108711 |          8228 |      8858450
+ part           |          16255 |         16507 |          1099 |      1051321
+ partsupp       |          83580 |         87994 |          4389 |      4654611
+ region         |              1 |             0 |             2 |            5
+ supplier       |           1310 |           976 |            57 |        39648
+ tmp_orderkey1  |             20 |          1551 |               |             
+ tmp_orderkey10 |              0 |             0 |               |             
+ tmp_orderkey11 |              0 |             0 |               |             
+ tmp_orderkey12 |              0 |             0 |               |             
+ tmp_orderkey2  |             34 |          1530 |               |             
+ tmp_orderkey3  |             34 |          1537 |               |             
+ tmp_orderkey4  |              0 |             0 |               |             
+ tmp_orderkey5  |              0 |             0 |               |             
+ tmp_orderkey6  |              0 |             0 |               |             
+ tmp_orderkey7  |              0 |             0 |               |             
+ tmp_orderkey8  |              0 |             0 |               |             
+ tmp_orderkey9  |              0 |             0 |               |             
+
+ customer       |          97055 |         52733 |          5172 |       825030
+ lineitem       |        4345259 |       1968802 |        417389 |     38965856
+ nation         |             10 |          5303 |            15 |         5320
+ orders         |        3595092 |       1380174 |        418748 |     11994667
+ part           |         105459 |         34190 |          2232 |      1051448
+ partsupp       |         415602 |        347090 |         17744 |      4747764
+ region         |              5 |          1323 |             8 |           19
+ supplier       |          15407 |        678013 |           206 |      1412166
+ tmp_orderkey1  |              0 |             0 |               |             
+ tmp_orderkey10 |              0 |             0 |               |             
+ tmp_orderkey11 |              0 |             0 |               |             
+ tmp_orderkey12 |              0 |             0 |               |             
+ tmp_orderkey2  |              0 |             0 |               |             
+ tmp_orderkey3  |              0 |             0 |               |             
+ tmp_orderkey4  |              0 |             0 |               |             
+ tmp_orderkey5  |              0 |             0 |               |             
+ tmp_orderkey6  |              0 |             0 |               |             
+ tmp_orderkey7  |              0 |             0 |               |             
+ tmp_orderkey8  |              0 |             0 |               |             
+ tmp_orderkey9  |              0 |             0 |               |             
+

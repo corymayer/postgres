@@ -1,0 +1,68 @@
+
+    relname    |  pid  |       mode       | granted 
+---------------+-------+------------------+---------
+ customer      | 26481 | RowExclusiveLock | t
+ customer_pkey | 26481 | RowExclusiveLock | t
+ lineitem      | 26485 | RowExclusiveLock | t
+ lineitem_pkey | 26485 | RowExclusiveLock | t
+ orders        | 26482 | RowExclusiveLock | t
+ orders_pkey   | 26482 | RowExclusiveLock | t
+ part          | 26479 | RowExclusiveLock | t
+ part_pkey     | 26479 | RowExclusiveLock | t
+ partsupp      | 26480 | RowExclusiveLock | t
+ partsupp_pkey | 26480 | RowExclusiveLock | t
+ pg_locks      | 26491 | AccessShareLock  | t
+ supplier      | 26476 | RowExclusiveLock | t
+ supplier_pkey | 26476 | RowExclusiveLock | t
+(13 rows)
+
+    relname    |  pid  |           mode           | granted 
+---------------+-------+--------------------------+---------
+ lineitem      | 26485 | RowExclusiveLock         | t
+ lineitem_pkey | 26485 | RowExclusiveLock         | t
+ part          | 26503 | ShareUpdateExclusiveLock | t
+ part_pkey     | 26503 | AccessShareLock          | t
+ pg_locks      | 26507 | AccessShareLock          | t
+(5 rows)
+
+ relname  |  pid  |      mode       | granted 
+----------+-------+-----------------+---------
+ lineitem | 26559 | ShareLock       | t
+ lineitem | 26558 | ShareLock       | t
+ lineitem | 26556 | ShareLock       | t
+ lineitem | 26554 | ShareLock       | t
+ lineitem | 26565 | ShareLock       | t
+ lineitem | 26561 | ShareLock       | t
+ lineitem | 26553 | ShareLock       | t
+ lineitem | 26555 | ShareLock       | t
+ orders   | 26560 | ShareLock       | t
+ orders   | 26566 | ShareLock       | t
+ partsupp | 26557 | ShareLock       | t
+ pg_locks | 26574 | AccessShareLock | t
+(12 rows)
+
+        relname        |  pid  |      mode       | granted 
+-----------------------+-------+-----------------+---------
+ i_l_commitdate        | 26967 | AccessShareLock | t
+ i_l_orderkey          | 26967 | AccessShareLock | t
+ i_l_orderkey_quantity | 26967 | AccessShareLock | t
+ i_l_partkey           | 26967 | AccessShareLock | t
+ i_l_receiptdate       | 26967 | AccessShareLock | t
+ i_l_shipdate          | 26967 | AccessShareLock | t
+ i_l_suppkey           | 26967 | AccessShareLock | t
+ i_l_suppkey_partkey   | 26967 | AccessShareLock | t
+ i_o_custkey           | 26967 | AccessShareLock | t
+ i_o_orderdate         | 26967 | AccessShareLock | t
+ lineitem              | 27007 | AccessShareLock | t
+ lineitem              | 27008 | AccessShareLock | t
+ lineitem              | 26967 | AccessShareLock | t
+ lineitem_pkey         | 26967 | AccessShareLock | t
+ orders                | 27007 | AccessShareLock | t
+ orders                | 26967 | AccessShareLock | t
+ orders                | 27008 | AccessShareLock | t
+ orders_pkey           | 27007 | AccessShareLock | t
+ orders_pkey           | 26967 | AccessShareLock | t
+ orders_pkey           | 27008 | AccessShareLock | t
+ pg_locks              | 27013 | AccessShareLock | t
+(21 rows)
+

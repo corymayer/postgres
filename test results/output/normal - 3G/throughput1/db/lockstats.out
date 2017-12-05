@@ -1,0 +1,32 @@
+
+        relname        |  pid  |      mode       | granted 
+-----------------------+-------+-----------------+---------
+ i_n_regionkey         | 28817 | AccessShareLock | t
+ i_ps_partkey          | 28817 | AccessShareLock | t
+ i_ps_suppkey          | 28817 | AccessShareLock | t
+ i_s_nationkey         | 28817 | AccessShareLock | t
+ nation                | 28817 | AccessShareLock | t
+ nation_pkey           | 28817 | AccessShareLock | t
+ part                  | 28817 | AccessShareLock | t
+ part_pkey             | 28817 | AccessShareLock | t
+ partsupp              | 28817 | AccessShareLock | t
+ partsupp_pkey         | 28817 | AccessShareLock | t
+ pg_amop               | 28817 | AccessShareLock | t
+ pg_amop_opr_fam_index | 28817 | AccessShareLock | t
+ pg_locks              | 28819 | AccessShareLock | t
+ region                | 28817 | AccessShareLock | t
+ region_pkey           | 28817 | AccessShareLock | t
+ supplier              | 28817 | AccessShareLock | t
+ supplier_pkey         | 28817 | AccessShareLock | t
+(17 rows)
+
+    relname    |  pid  |       mode       | granted 
+---------------+-------+------------------+---------
+ i_o_custkey   | 29162 | RowExclusiveLock | t
+ i_o_orderdate | 29162 | RowExclusiveLock | t
+ orders        | 29162 | RowExclusiveLock | t
+ orders_pkey   | 29162 | RowExclusiveLock | t
+ pg_locks      | 29167 | AccessShareLock  | t
+ tmp_orderkey3 | 29162 | AccessShareLock  | t
+(6 rows)
+

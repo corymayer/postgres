@@ -1,0 +1,15 @@
+ EXPLAIN select l_returnflag, l_linestatus, sum(l_quantity) as sum_qty, sum(l_extendedprice) as sum_base_price, sum(l_extendedprice * (1 - l_discount)) as sum_disc_price, sum(l_extendedprice * (1 - l_discount) * (1 + l_tax)) as sum_charge, avg(l_quantity) as avg_qty, avg(l_extendedprice) as avg_price, avg(l_discount) as avg_disc, count(*) as count_order from lineitem where l_shipdate <= date'1998-12-01' - interval '106 day' group by l_returnflag, l_linestatus order by l_returnflag, l_linestatus;
+                                              QUERY PLAN                                              
+------------------------------------------------------------------------------------------------------
+ Finalize GroupAggregate  (cost=472920.69..472921.13 rows=6 width=60)
+   Group Key: l_returnflag, l_linestatus
+   ->  Sort  (cost=472920.69..472920.72 rows=12 width=132)
+         Sort Key: l_returnflag, l_linestatus
+         ->  Gather  (cost=472919.22..472920.48 rows=12 width=132)
+               Workers Planned: 2
+               ->  Partial HashAggregate  (cost=471919.22..471919.28 rows=6 width=132)
+                     Group Key: l_returnflag, l_linestatus
+                     ->  Parallel Seq Scan on lineitem  (cost=0.00..275729.02 rows=4904755 width=20)
+                           Filter: (l_shipdate <= '1998-08-17 00:00:00'::timestamp without time zone)
+(10 rows)
+

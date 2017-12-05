@@ -1,0 +1,26 @@
+
+ customer | customer_pkey |        0 |            0 |             0
+ lineitem | lineitem_pkey |        0 |            0 |             0
+ nation   | nation_pkey   |        0 |            0 |             0
+ orders   | orders_pkey   |        0 |            0 |             0
+ part     | part_pkey     |        0 |            0 |             0
+ partsupp | partsupp_pkey |        0 |            0 |             0
+ region   | region_pkey   |        0 |            0 |             0
+ supplier | supplier_pkey |        0 |            0 |             0
+
+ customer | customer_pkey |        0 |            0 |             0
+ customer | i_c_nationkey |        0 |            0 |             0
+ nation   | i_n_regionkey |        0 |            0 |             0
+ orders   | i_o_custkey   |        0 |            0 |             0
+ orders   | i_o_orderdate |        0 |            0 |             0
+ partsupp | i_ps_partkey  |        0 |            0 |             0
+ partsupp | i_ps_suppkey  |        0 |            0 |             0
+ supplier | i_s_nationkey |        0 |            0 |             0
+ lineitem | lineitem_pkey |        0 |            0 |             0
+ nation   | nation_pkey   |        0 |            0 |             0
+ orders   | orders_pkey   |        0 |            0 |             0
+ part     | part_pkey     |        0 |            0 |             0
+ partsupp | partsupp_pkey |        0 |            0 |             0
+ region   | region_pkey   |        0 |            0 |             0
+ supplier | supplier_pkey |        0 |            0 |             0
+

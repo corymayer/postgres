@@ -1,0 +1,23 @@
+ EXPLAIN select p_brand, p_type, p_size, count(distinct ps_suppkey) as supplier_cnt from partsupp, part where p_partkey = ps_partkey and p_brand <> 'Brand#22' and p_type not like 'MEDIUM ANODIZED%' and p_size in (31, 40, 10, 43, 20, 21, 33, 42) and ps_suppkey not in ( select s_suppkey from supplier where s_comment like '%Customer%Complaints%' ) group by p_brand, p_type, p_size order by supplier_cnt desc, p_brand, p_type, p_size;
+                                                                                          QUERY PLAN                                                                                           
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Sort  (cost=46332.37..46372.16 rows=15917 width=44)
+   Sort Key: (count(DISTINCT partsupp.ps_suppkey)) DESC, part.p_brand, part.p_type, part.p_size
+   ->  GroupAggregate  (cost=44348.88..45221.50 rows=15917 width=44)
+         Group Key: part.p_brand, part.p_type, part.p_size
+         ->  Sort  (cost=44348.88..44491.57 rows=57076 width=40)
+               Sort Key: part.p_brand, part.p_type, part.p_size
+               ->  Gather  (cost=10774.28..39839.71 rows=57076 width=40)
+                     Workers Planned: 2
+                     ->  Hash Join  (cost=9774.28..33132.11 rows=23782 width=40)
+                           Hash Cond: (partsupp.ps_partkey = part.p_partkey)
+                           ->  Parallel Seq Scan on partsupp  (cost=343.00..21596.67 rows=166667 width=8)
+                                 Filter: (NOT (hashed SubPlan 1))
+                                 SubPlan 1
+                                   ->  Seq Scan on supplier  (cost=0.00..343.00 rows=1 width=4)
+                                         Filter: ((s_comment)::text ~~ '%Customer%Complaints%'::text)
+                           ->  Hash  (cost=9064.00..9064.00 rows=29382 width=40)
+                                 ->  Seq Scan on part  (cost=0.00..9064.00 rows=29382 width=40)
+                                       Filter: ((p_brand <> 'Brand#22'::bpchar) AND ((p_type)::text !~~ 'MEDIUM ANODIZED%'::text) AND (p_size = ANY ('{31,40,10,43,20,21,33,42}'::integer[])))
+(18 rows)
+

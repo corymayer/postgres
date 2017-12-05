@@ -1,0 +1,27 @@
+ relid | indexrelid | schemaname | relname  |     indexrelname      | idx_scan | idx_tup_read | idx_tup_fetch 
+-------+------------+------------+----------+-----------------------+----------+--------------+---------------
+ 16702 |      16705 | public     | supplier | supplier_pkey         |       40 |           40 |            40
+ 16707 |      16710 | public     | part     | part_pkey             |       26 |           26 |            26
+ 16712 |      16715 | public     | partsupp | partsupp_pkey         |        0 |            0 |             0
+ 16717 |      16720 | public     | customer | customer_pkey         |       28 |           28 |            28
+ 16722 |      16725 | public     | orders   | orders_pkey           |       30 |           30 |            30
+ 16727 |      16730 | public     | lineitem | lineitem_pkey         |        0 |            0 |             0
+ 16732 |      16735 | public     | nation   | nation_pkey           |       42 |           42 |            42
+ 16737 |      16740 | public     | region   | region_pkey           |        8 |            8 |             8
+ 16727 |      16751 | public     | lineitem | i_l_shipdate          |        0 |            0 |             0
+ 16727 |      16752 | public     | lineitem | i_l_suppkey           |       24 |           24 |            24
+ 16717 |      16753 | public     | customer | i_c_nationkey         |        0 |            0 |             0
+ 16727 |      16754 | public     | lineitem | i_l_partkey           |        0 |            0 |             0
+ 16727 |      16755 | public     | lineitem | i_l_receiptdate       |        0 |            0 |             0
+ 16727 |      16756 | public     | lineitem | i_l_orderkey_quantity |        0 |            0 |             0
+ 16727 |      16757 | public     | lineitem | i_l_commitdate        |        0 |            0 |             0
+ 16727 |      16758 | public     | lineitem | i_l_orderkey          |       38 |           38 |            38
+ 16732 |      16759 | public     | nation   | i_n_regionkey         |        0 |            0 |             0
+ 16702 |      16760 | public     | supplier | i_s_nationkey         |        0 |            0 |             0
+ 16727 |      16761 | public     | lineitem | i_l_suppkey_partkey   |       18 |           18 |            18
+ 16712 |      16762 | public     | partsupp | i_ps_partkey          |       16 |           16 |            16
+ 16722 |      16763 | public     | orders   | i_o_orderdate         |        0 |            0 |             0
+ 16722 |      16764 | public     | orders   | i_o_custkey           |       28 |           28 |            28
+ 16712 |      16765 | public     | partsupp | i_ps_suppkey          |       24 |           24 |            24
+(23 rows)
+

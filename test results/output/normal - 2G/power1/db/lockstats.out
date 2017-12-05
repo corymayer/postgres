@@ -1,0 +1,34 @@
+
+ relname  |  pid  |      mode       | granted 
+----------+-------+-----------------+---------
+ pg_locks | 26801 | AccessShareLock | t
+(1 row)
+
+        relname        |  pid  |       mode       | granted 
+-----------------------+-------+------------------+---------
+ i_l_commitdate        | 27313 | AccessShareLock  | t
+ i_l_commitdate        | 27435 | RowExclusiveLock | t
+ i_l_orderkey          | 27313 | AccessShareLock  | t
+ i_l_orderkey          | 27435 | RowExclusiveLock | t
+ i_l_orderkey_quantity | 27313 | AccessShareLock  | t
+ i_l_orderkey_quantity | 27435 | RowExclusiveLock | t
+ i_l_partkey           | 27435 | RowExclusiveLock | t
+ i_l_partkey           | 27313 | AccessShareLock  | t
+ i_l_receiptdate       | 27435 | RowExclusiveLock | t
+ i_l_receiptdate       | 27313 | AccessShareLock  | t
+ i_l_shipdate          | 27435 | RowExclusiveLock | t
+ i_l_shipdate          | 27313 | AccessShareLock  | t
+ i_l_suppkey           | 27435 | RowExclusiveLock | t
+ i_l_suppkey           | 27313 | AccessShareLock  | t
+ i_l_suppkey_partkey   | 27435 | RowExclusiveLock | t
+ i_l_suppkey_partkey   | 27313 | AccessShareLock  | t
+ lineitem              | 27435 | RowExclusiveLock | t
+ lineitem              | 27313 | AccessShareLock  | t
+ lineitem              | 27436 | AccessShareLock  | t
+ lineitem              | 27437 | AccessShareLock  | t
+ lineitem_pkey         | 27313 | AccessShareLock  | t
+ lineitem_pkey         | 27435 | RowExclusiveLock | t
+ pg_locks              | 27440 | AccessShareLock  | t
+ tmp_orderkey3         | 27435 | AccessShareLock  | t
+(24 rows)
+

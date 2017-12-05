@@ -1,0 +1,7 @@
+Mon Dec  4 23:49:07 PST 2017: Stream 1 : Starting Refresh Stream 2...
+COPY 1500
+DELETE 6005
+DELETE 1500
+DELETE 1500
+Mon Dec  4 23:49:13 PST 2017: Stream 1 : Refresh Stream 2 completed.
+Stream 1 : Elapsed time for Refresh Stream 2 : 6 seconds

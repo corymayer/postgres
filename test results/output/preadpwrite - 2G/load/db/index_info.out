@@ -1,0 +1,56 @@
+
+ customer | customer_pkey |             0 |            0
+ lineitem | lineitem_pkey |             0 |            0
+ nation   | nation_pkey   |             2 |           25
+ orders   | orders_pkey   |             0 |            0
+ part     | part_pkey     |             0 |            0
+ partsupp | partsupp_pkey |             0 |            0
+ region   | region_pkey   |             2 |            5
+ supplier | supplier_pkey |             0 |            0
+
+ customer | customer_pkey |           825 |       751047
+ lineitem | lineitem_pkey |             0 |            0
+ nation   | nation_pkey   |             2 |           25
+ orders   | orders_pkey   |          8228 |      8858450
+ part     | part_pkey     |          1099 |      1051321
+ partsupp | partsupp_pkey |          4389 |      4654611
+ region   | region_pkey   |             2 |            5
+ supplier | supplier_pkey |            57 |        39648
+
+ customer | customer_pkey |           825 |       751047
+ customer | i_c_nationkey |             0 |            0
+ nation   | i_n_regionkey |             0 |            0
+ partsupp | i_ps_partkey  |             0 |            0
+ supplier | i_s_nationkey |             0 |            0
+ lineitem | lineitem_pkey |         32899 |     35877109
+ nation   | nation_pkey   |             2 |           25
+ orders   | orders_pkey   |          8228 |      8858450
+ part     | part_pkey     |          1099 |      1051321
+ partsupp | partsupp_pkey |          4389 |      4654611
+ region   | region_pkey   |             2 |            5
+ supplier | supplier_pkey |            57 |        39648
+
+ customer | customer_pkey         |          5170 |       825023
+ customer | i_c_nationkey         |             2 |            7
+ lineitem | i_l_commitdate        |          2670 |        15567
+ lineitem | i_l_orderkey          |        211201 |      1577998
+ lineitem | i_l_orderkey_quantity |            93 |        18444
+ lineitem | i_l_partkey           |         10107 |        59739
+ lineitem | i_l_receiptdate       |          2715 |        15522
+ lineitem | i_l_shipdate          |          4364 |        15525
+ lineitem | i_l_suppkey           |          4897 |        13472
+ lineitem | i_l_suppkey_partkey   |         28509 |       327153
+ nation   | i_n_regionkey         |             2 |            8
+ orders   | i_o_custkey           |         25934 |      1182269
+ orders   | i_o_orderdate         |          1791 |         3984
+ partsupp | i_ps_partkey          |          8404 |        79747
+ partsupp | i_ps_suppkey          |          4949 |        13402
+ supplier | i_s_nationkey         |            19 |           17
+ lineitem | lineitem_pkey         |        152833 |     36922436
+ nation   | nation_pkey           |            13 |         5312
+ orders   | orders_pkey           |        391023 |     10808414
+ part     | part_pkey             |          2232 |      1051448
+ partsupp | partsupp_pkey         |          4391 |      4654615
+ region   | region_pkey           |             8 |           19
+ supplier | supplier_pkey         |           187 |      1412149
+

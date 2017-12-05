@@ -1,0 +1,26 @@
+ EXPLAIN select cntrycode, count(*) as numcust, sum(c_acctbal) as totacctbal from ( select substr(c_phone, 1, 2) as cntrycode, c_acctbal from customer where substr(c_phone, 1, 2) in ('12', '22', '32', '34', '26', '13', '15') and c_acctbal > ( select avg(c_acctbal) from customer where c_acctbal > 0.00 and substr(c_phone, 1, 2) in ('12', '22', '32', '34', '26', '13', '15') ) and not exists ( select * from orders where o_custkey = c_custkey ) ) as vip group by cntrycode order by cntrycode;
+                                                                       QUERY PLAN                                                                       
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+ Finalize GroupAggregate  (cost=56622.63..57010.79 rows=3036 width=44)
+   Group Key: (substr((customer.c_phone)::text, 1, 2))
+   InitPlan 1 (returns $1)
+     ->  Finalize Aggregate  (cost=21701.57..21701.58 rows=1 width=8)
+           ->  Gather  (cost=21701.35..21701.56 rows=2 width=32)
+                 Workers Planned: 2
+                 ->  Partial Aggregate  (cost=20701.35..20701.36 rows=1 width=32)
+                       ->  Parallel Seq Scan on customer customer_1  (cost=0.00..20681.50 rows=7941 width=4)
+                             Filter: ((c_acctbal > '0'::double precision) AND (substr((c_phone)::text, 1, 2) = ANY ('{12,22,32,34,26,13,15}'::text[])))
+   ->  Gather Merge  (cost=34921.05..35244.70 rows=2530 width=44)
+         Workers Planned: 2
+         Params Evaluated: $1
+         ->  Partial GroupAggregate  (cost=33921.02..33952.65 rows=1265 width=44)
+               Group Key: (substr((customer.c_phone)::text, 1, 2))
+               ->  Sort  (cost=33921.02..33924.18 rows=1265 width=36)
+                     Sort Key: (substr((customer.c_phone)::text, 1, 2))
+                     ->  Nested Loop Anti Join  (cost=0.43..33855.84 rows=1265 width=36)
+                           ->  Parallel Seq Scan on customer  (cost=0.00..20681.50 rows=2917 width=24)
+                                 Filter: ((c_acctbal > $1) AND (substr((c_phone)::text, 1, 2) = ANY ('{12,22,32,34,26,13,15}'::text[])))
+                           ->  Index Only Scan using i_o_custkey on orders  (cost=0.43..48.44 rows=18 width=4)
+                                 Index Cond: (o_custkey = customer.c_custkey)
+(21 rows)
+

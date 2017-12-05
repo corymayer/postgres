@@ -1,0 +1,32 @@
+
+    relname    |  pid  |       mode       | granted 
+---------------+-------+------------------+---------
+ customer      | 24942 | RowExclusiveLock | t
+ customer_pkey | 24942 | RowExclusiveLock | t
+ lineitem      | 24943 | RowExclusiveLock | t
+ lineitem      | 24943 | ExclusiveLock    | t
+ lineitem_pkey | 24943 | RowExclusiveLock | t
+ orders        | 24944 | RowExclusiveLock | t
+ orders_pkey   | 24944 | RowExclusiveLock | t
+ part          | 24940 | RowExclusiveLock | t
+ part_pkey     | 24940 | RowExclusiveLock | t
+ partsupp      | 24939 | RowExclusiveLock | t
+ partsupp_pkey | 24939 | RowExclusiveLock | t
+ pg_locks      | 24951 | AccessShareLock  | t
+ supplier      | 24936 | RowExclusiveLock | t
+ supplier_pkey | 24936 | RowExclusiveLock | t
+(14 rows)
+
+ relname  |  pid  |      mode       | granted 
+----------+-------+-----------------+---------
+ lineitem | 24998 | ShareLock       | t
+ lineitem | 25003 | ShareLock       | t
+ lineitem | 24999 | ShareLock       | t
+ lineitem | 25001 | ShareLock       | t
+ lineitem | 25004 | ShareLock       | t
+ lineitem | 25002 | ShareLock       | t
+ lineitem | 24997 | ShareLock       | t
+ lineitem | 25007 | ShareLock       | t
+ pg_locks | 25015 | AccessShareLock | t
+(9 rows)
+

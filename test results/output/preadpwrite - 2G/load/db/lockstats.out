@@ -1,0 +1,87 @@
+
+    relname    | pid  |       mode       | granted 
+---------------+------+------------------+---------
+ customer      | 8731 | RowExclusiveLock | t
+ customer_pkey | 8731 | RowExclusiveLock | t
+ lineitem      | 8737 | RowExclusiveLock | t
+ lineitem_pkey | 8737 | RowExclusiveLock | t
+ orders        | 8732 | RowExclusiveLock | t
+ orders_pkey   | 8732 | RowExclusiveLock | t
+ part          | 8729 | RowExclusiveLock | t
+ part_pkey     | 8729 | RowExclusiveLock | t
+ partsupp      | 8733 | RowExclusiveLock | t
+ partsupp_pkey | 8733 | RowExclusiveLock | t
+ pg_locks      | 8742 | AccessShareLock  | t
+ supplier      | 8728 | RowExclusiveLock | t
+ supplier_pkey | 8728 | RowExclusiveLock | t
+(13 rows)
+
+    relname    | pid  |           mode           | granted 
+---------------+------+--------------------------+---------
+ lineitem      | 8737 | RowExclusiveLock         | t
+ lineitem_pkey | 8737 | RowExclusiveLock         | t
+ partsupp      | 8752 | ShareUpdateExclusiveLock | t
+ partsupp_pkey | 8752 | AccessShareLock          | t
+ pg_locks      | 8758 | AccessShareLock          | t
+(5 rows)
+
+ relname  | pid  |      mode       | granted 
+----------+------+-----------------+---------
+ lineitem | 8808 | ShareLock       | t
+ lineitem | 8810 | ShareLock       | t
+ lineitem | 8806 | ShareLock       | t
+ lineitem | 8805 | ShareLock       | t
+ lineitem | 8812 | ShareLock       | t
+ lineitem | 8809 | ShareLock       | t
+ lineitem | 8819 | ShareLock       | t
+ lineitem | 8804 | ShareLock       | t
+ orders   | 8807 | ShareLock       | t
+ orders   | 8814 | ShareLock       | t
+ partsupp | 8818 | ShareLock       | t
+ pg_locks | 8823 | AccessShareLock | t
+(12 rows)
+
+        relname        | pid  |      mode       | granted 
+-----------------------+------+-----------------+---------
+ customer              | 9215 | AccessShareLock | t
+ customer              | 9255 | AccessShareLock | t
+ customer              | 9256 | AccessShareLock | t
+ customer_pkey         | 9215 | AccessShareLock | t
+ i_c_nationkey         | 9215 | AccessShareLock | t
+ i_l_commitdate        | 9215 | AccessShareLock | t
+ i_l_orderkey          | 9215 | AccessShareLock | t
+ i_l_orderkey_quantity | 9215 | AccessShareLock | t
+ i_l_partkey           | 9215 | AccessShareLock | t
+ i_l_receiptdate       | 9215 | AccessShareLock | t
+ i_l_shipdate          | 9215 | AccessShareLock | t
+ i_l_suppkey           | 9256 | AccessShareLock | t
+ i_l_suppkey           | 9215 | AccessShareLock | t
+ i_l_suppkey           | 9255 | AccessShareLock | t
+ i_l_suppkey_partkey   | 9215 | AccessShareLock | t
+ i_n_regionkey         | 9215 | AccessShareLock | t
+ i_o_custkey           | 9256 | AccessShareLock | t
+ i_o_custkey           | 9215 | AccessShareLock | t
+ i_o_custkey           | 9255 | AccessShareLock | t
+ i_o_orderdate         | 9215 | AccessShareLock | t
+ i_s_nationkey         | 9215 | AccessShareLock | t
+ lineitem              | 9255 | AccessShareLock | t
+ lineitem              | 9215 | AccessShareLock | t
+ lineitem              | 9256 | AccessShareLock | t
+ lineitem_pkey         | 9215 | AccessShareLock | t
+ nation                | 9255 | AccessShareLock | t
+ nation                | 9256 | AccessShareLock | t
+ nation                | 9215 | AccessShareLock | t
+ nation_pkey           | 9215 | AccessShareLock | t
+ orders                | 9256 | AccessShareLock | t
+ orders                | 9255 | AccessShareLock | t
+ orders                | 9215 | AccessShareLock | t
+ orders_pkey           | 9215 | AccessShareLock | t
+ pg_locks              | 9259 | AccessShareLock | t
+ supplier              | 9215 | AccessShareLock | t
+ supplier              | 9256 | AccessShareLock | t
+ supplier              | 9255 | AccessShareLock | t
+ supplier_pkey         | 9256 | AccessShareLock | t
+ supplier_pkey         | 9255 | AccessShareLock | t
+ supplier_pkey         | 9215 | AccessShareLock | t
+(40 rows)
+

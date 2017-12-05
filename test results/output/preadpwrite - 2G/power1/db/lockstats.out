@@ -1,0 +1,42 @@
+
+ relname  | pid  |      mode       | granted 
+----------+------+-----------------+---------
+ pg_locks | 9049 | AccessShareLock | t
+(1 row)
+
+        relname        | pid  |       mode       | granted 
+-----------------------+------+------------------+---------
+ i_l_commitdate        | 9685 | RowExclusiveLock | t
+ i_l_commitdate        | 9561 | AccessShareLock  | t
+ i_l_orderkey          | 9685 | RowExclusiveLock | t
+ i_l_orderkey          | 9561 | AccessShareLock  | t
+ i_l_orderkey_quantity | 9685 | RowExclusiveLock | t
+ i_l_orderkey_quantity | 9561 | AccessShareLock  | t
+ i_l_partkey           | 9685 | RowExclusiveLock | t
+ i_l_partkey           | 9561 | AccessShareLock  | t
+ i_l_receiptdate       | 9561 | AccessShareLock  | t
+ i_l_receiptdate       | 9685 | RowExclusiveLock | t
+ i_l_shipdate          | 9561 | AccessShareLock  | t
+ i_l_shipdate          | 9685 | RowExclusiveLock | t
+ i_l_suppkey           | 9561 | AccessShareLock  | t
+ i_l_suppkey           | 9685 | RowExclusiveLock | t
+ i_l_suppkey_partkey   | 9561 | AccessShareLock  | t
+ i_l_suppkey_partkey   | 9685 | RowExclusiveLock | t
+ i_o_custkey           | 9561 | AccessShareLock  | t
+ i_o_orderdate         | 9561 | AccessShareLock  | t
+ lineitem              | 9686 | AccessShareLock  | t
+ lineitem              | 9561 | AccessShareLock  | t
+ lineitem              | 9687 | AccessShareLock  | t
+ lineitem              | 9685 | RowExclusiveLock | t
+ lineitem_pkey         | 9685 | RowExclusiveLock | t
+ lineitem_pkey         | 9561 | AccessShareLock  | t
+ orders                | 9686 | AccessShareLock  | t
+ orders                | 9687 | AccessShareLock  | t
+ orders                | 9561 | AccessShareLock  | t
+ orders_pkey           | 9561 | AccessShareLock  | t
+ orders_pkey           | 9686 | AccessShareLock  | t
+ orders_pkey           | 9687 | AccessShareLock  | t
+ pg_locks              | 9690 | AccessShareLock  | t
+ tmp_orderkey3         | 9685 | AccessShareLock  | t
+(32 rows)
+

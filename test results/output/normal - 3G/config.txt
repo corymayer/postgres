@@ -1,0 +1,16 @@
+node: o-right-pc
+kernel: Linux 4.10.0-37-generic
+distribution: fixme
+dbver:  PostgreSQL 11devel on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 5.4.0-6ubuntu1~16.04.4) 5.4.0 20160609, 64-bit
+procps: 
+sysstat: 31:
+CPUS: 8
+MHz:  3698.193
+model:  Intel(R) Xeon(R) CPU E5-1620 v2 @ 3.70GHz
+memory:        16373232 kB
+scale_factor: 1
+num_stream: 1
+load_parameters: 
+power_parameters: 
+throughput_parameters: 
+shmmax: 18446744073692774399

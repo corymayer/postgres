@@ -1,0 +1,31 @@
+ EXPLAIN select nation, o_year, sum(amount) as sum_profit from ( select n_name as nation, extract(year from o_orderdate) as o_year, l_extendedprice * (1 - l_discount) - ps_supplycost * l_quantity as amount from part, supplier, lineitem, partsupp, orders, nation where s_suppkey = l_suppkey and ps_suppkey = l_suppkey and ps_partkey = l_partkey and p_partkey = l_partkey and o_orderkey = l_orderkey and s_nationkey = n_nationkey and p_name like '%ivory%' ) as profit group by nation, o_year order by nation, o_year desc;
+                                                               QUERY PLAN                                                                
+-----------------------------------------------------------------------------------------------------------------------------------------
+ Finalize GroupAggregate  (cost=181968.75..181977.62 rows=67 width=42)
+   Group Key: nation.n_name, (date_part('year'::text, (orders.o_orderdate)::timestamp without time zone))
+   ->  Gather Merge  (cost=181968.75..181976.20 rows=56 width=42)
+         Workers Planned: 2
+         ->  Partial GroupAggregate  (cost=180968.73..180969.71 rows=28 width=42)
+               Group Key: nation.n_name, (date_part('year'::text, (orders.o_orderdate)::timestamp without time zone))
+               ->  Sort  (cost=180968.73..180968.80 rows=28 width=50)
+                     Sort Key: nation.n_name, (date_part('year'::text, (orders.o_orderdate)::timestamp without time zone)) DESC
+                     ->  Hash Join  (cost=3.15..180968.06 rows=28 width=50)
+                           Hash Cond: (supplier.s_nationkey = nation.n_nationkey)
+                           ->  Nested Loop  (cost=1.59..180966.01 rows=28 width=24)
+                                 ->  Nested Loop  (cost=1.16..180915.67 rows=28 width=24)
+                                       ->  Nested Loop  (cost=0.87..180874.89 rows=28 width=28)
+                                             ->  Nested Loop  (cost=0.43..76351.63 rows=40399 width=16)
+                                                   ->  Parallel Seq Scan on part  (cost=0.00..20417.67 rows=10101 width=4)
+                                                         Filter: ((p_name)::text ~~ '%ivory%'::text)
+                                                   ->  Index Scan using i_ps_partkey on partsupp  (cost=0.43..5.47 rows=7 width=12)
+                                                         Index Cond: (ps_partkey = part.p_partkey)
+                                             ->  Index Scan using i_l_suppkey_partkey on lineitem  (cost=0.44..2.58 rows=1 width=24)
+                                                   Index Cond: ((l_partkey = partsupp.ps_partkey) AND (l_suppkey = partsupp.ps_suppkey))
+                                       ->  Index Scan using supplier_pkey on supplier  (cost=0.29..1.46 rows=1 width=8)
+                                             Index Cond: (s_suppkey = lineitem.l_suppkey)
+                                 ->  Index Scan using orders_pkey on orders  (cost=0.43..1.80 rows=1 width=8)
+                                       Index Cond: (o_orderkey = lineitem.l_orderkey)
+                           ->  Hash  (cost=1.25..1.25 rows=25 width=30)
+                                 ->  Seq Scan on nation  (cost=0.00..1.25 rows=25 width=30)
+(26 rows)
+

@@ -1,0 +1,12 @@
+ relid | indexrelid | schemaname | relname  | indexrelname  | idx_scan | idx_tup_read | idx_tup_fetch 
+-------+------------+------------+----------+---------------+----------+--------------+---------------
+ 16486 |      16489 | public     | supplier | supplier_pkey |        0 |            0 |             0
+ 16491 |      16494 | public     | part     | part_pkey     |        0 |            0 |             0
+ 16496 |      16499 | public     | partsupp | partsupp_pkey |        0 |            0 |             0
+ 16501 |      16504 | public     | customer | customer_pkey |        0 |            0 |             0
+ 16506 |      16509 | public     | orders   | orders_pkey   |        0 |            0 |             0
+ 16511 |      16514 | public     | lineitem | lineitem_pkey |        0 |            0 |             0
+ 16516 |      16519 | public     | nation   | nation_pkey   |        0 |            0 |             0
+ 16521 |      16524 | public     | region   | region_pkey   |        0 |            0 |             0
+(8 rows)
+

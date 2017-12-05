@@ -1,0 +1,53 @@
+
+ relname  | pid  |      mode       | granted 
+----------+------+-----------------+---------
+ pg_locks | 7416 | AccessShareLock | t
+(1 row)
+
+        relname        | pid  |       mode       | granted 
+-----------------------+------+------------------+---------
+ i_l_commitdate        | 7664 | RowExclusiveLock | t
+ i_l_orderkey          | 7664 | RowExclusiveLock | t
+ i_l_orderkey_quantity | 7664 | RowExclusiveLock | t
+ i_l_partkey           | 7664 | RowExclusiveLock | t
+ i_l_receiptdate       | 7664 | RowExclusiveLock | t
+ i_l_shipdate          | 7664 | RowExclusiveLock | t
+ i_l_suppkey           | 7664 | RowExclusiveLock | t
+ i_l_suppkey_partkey   | 7664 | RowExclusiveLock | t
+ lineitem              | 7664 | RowExclusiveLock | t
+ lineitem_pkey         | 7664 | RowExclusiveLock | t
+ pg_locks              | 7667 | AccessShareLock  | t
+ tmp_orderkey1         | 7664 | AccessShareLock  | t
+(12 rows)
+
+        relname        | pid  |       mode       | granted 
+-----------------------+------+------------------+---------
+ customer              | 7957 | AccessShareLock  | t
+ customer              | 8013 | AccessShareLock  | t
+ customer              | 8012 | AccessShareLock  | t
+ customer_pkey         | 8012 | AccessShareLock  | t
+ customer_pkey         | 8013 | AccessShareLock  | t
+ customer_pkey         | 7957 | AccessShareLock  | t
+ i_c_nationkey         | 7957 | AccessShareLock  | t
+ i_l_commitdate        | 8089 | RowExclusiveLock | t
+ i_l_orderkey          | 8089 | RowExclusiveLock | t
+ i_l_orderkey_quantity | 8089 | RowExclusiveLock | t
+ i_l_partkey           | 8089 | RowExclusiveLock | t
+ i_l_receiptdate       | 8089 | RowExclusiveLock | t
+ i_l_shipdate          | 8089 | RowExclusiveLock | t
+ i_l_suppkey           | 8089 | RowExclusiveLock | t
+ i_l_suppkey_partkey   | 8089 | RowExclusiveLock | t
+ i_o_custkey           | 7957 | AccessShareLock  | t
+ i_o_custkey           | 8012 | AccessShareLock  | t
+ i_o_custkey           | 8013 | AccessShareLock  | t
+ i_o_orderdate         | 7957 | AccessShareLock  | t
+ lineitem              | 8089 | RowExclusiveLock | t
+ lineitem_pkey         | 8089 | RowExclusiveLock | t
+ orders                | 8012 | AccessShareLock  | t
+ orders                | 8013 | AccessShareLock  | t
+ orders                | 7957 | AccessShareLock  | t
+ orders_pkey           | 7957 | AccessShareLock  | t
+ pg_locks              | 8095 | AccessShareLock  | t
+ tmp_orderkey3         | 8089 | AccessShareLock  | t
+(27 rows)
+

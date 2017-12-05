@@ -1,0 +1,100 @@
+
+
+------ Message Queues --------
+key        msqid      owner      perms      used-bytes   messages    
+
+------ Shared Memory Segments --------
+key        shmid      owner      perms      bytes      nattch     status      
+0x00000000 294912     o-right-pc 600        524288     2          dest         
+0x00000000 851969     o-right-pc 600        524288     2          dest         
+0x00000000 655362     o-right-pc 600        524288     2          dest         
+0x00000000 524291     o-right-pc 600        524288     2          dest         
+0x00000000 753668     o-right-pc 600        524288     2          dest         
+0x00000000 1015813    o-right-pc 600        524288     2          dest         
+0x00000000 917510     o-right-pc 600        67108864   2          dest         
+0x00000000 1114119    o-right-pc 600        524288     2          dest         
+0x00000000 1212424    o-right-pc 600        524288     2          dest         
+0x00000000 1245193    o-right-pc 600        2097152    2          dest         
+0x00000000 1343498    o-right-pc 600        524288     2          dest         
+0x00000000 1441803    o-right-pc 600        524288     2          dest         
+0x00000000 1933324    o-right-pc 600        2404352    2          dest         
+0x00000000 1835021    o-right-pc 600        389120     2          dest         
+0x00000000 1540110    o-right-pc 600        6631424    2          dest         
+0x00000000 1802255    o-right-pc 600        6631424    2          dest         
+0x00000000 1703952    o-right-pc 600        2404352    2          dest         
+0x00000000 1867793    o-right-pc 600        389120     2          dest         
+0x00000000 1966098    o-right-pc 600        159744     2          dest         
+0x00000000 1998867    o-right-pc 600        159744     2          dest         
+0x00000000 2031636    o-right-pc 600        20480      2          dest         
+0x00000000 2064405    o-right-pc 600        20480      2          dest         
+0x00722e79 2326550    o-right-pc 600        56         6                       
+
+------ Semaphore Arrays --------
+key        semid      owner      perms      nsems     
+
+
+------ Message Queues --------
+key        msqid      owner      perms      used-bytes   messages    
+
+------ Shared Memory Segments --------
+key        shmid      owner      perms      bytes      nattch     status      
+0x00000000 294912     o-right-pc 600        524288     2          dest         
+0x00000000 851969     o-right-pc 600        524288     2          dest         
+0x00000000 655362     o-right-pc 600        524288     2          dest         
+0x00000000 524291     o-right-pc 600        524288     2          dest         
+0x00000000 753668     o-right-pc 600        524288     2          dest         
+0x00000000 1015813    o-right-pc 600        524288     2          dest         
+0x00000000 917510     o-right-pc 600        67108864   2          dest         
+0x00000000 1114119    o-right-pc 600        524288     2          dest         
+0x00000000 1212424    o-right-pc 600        524288     2          dest         
+0x00000000 1245193    o-right-pc 600        2097152    2          dest         
+0x00000000 1343498    o-right-pc 600        524288     2          dest         
+0x00000000 1441803    o-right-pc 600        524288     2          dest         
+0x00000000 1933324    o-right-pc 600        2404352    2          dest         
+0x00000000 1835021    o-right-pc 600        389120     2          dest         
+0x00000000 1540110    o-right-pc 600        6631424    2          dest         
+0x00000000 1802255    o-right-pc 600        6631424    2          dest         
+0x00000000 1703952    o-right-pc 600        2404352    2          dest         
+0x00000000 1867793    o-right-pc 600        389120     2          dest         
+0x00000000 1966098    o-right-pc 600        159744     2          dest         
+0x00000000 1998867    o-right-pc 600        159744     2          dest         
+0x00000000 2031636    o-right-pc 600        20480      2          dest         
+0x00000000 2064405    o-right-pc 600        20480      2          dest         
+0x00722e79 2326550    o-right-pc 600        56         7                       
+
+------ Semaphore Arrays --------
+key        semid      owner      perms      nsems     
+
+
+------ Message Queues --------
+key        msqid      owner      perms      used-bytes   messages    
+
+------ Shared Memory Segments --------
+key        shmid      owner      perms      bytes      nattch     status      
+0x00000000 294912     o-right-pc 600        524288     2          dest         
+0x00000000 851969     o-right-pc 600        524288     2          dest         
+0x00000000 655362     o-right-pc 600        524288     2          dest         
+0x00000000 524291     o-right-pc 600        524288     2          dest         
+0x00000000 753668     o-right-pc 600        524288     2          dest         
+0x00000000 1015813    o-right-pc 600        524288     2          dest         
+0x00000000 917510     o-right-pc 600        67108864   2          dest         
+0x00000000 1114119    o-right-pc 600        524288     2          dest         
+0x00000000 1212424    o-right-pc 600        524288     2          dest         
+0x00000000 1245193    o-right-pc 600        2097152    2          dest         
+0x00000000 1343498    o-right-pc 600        524288     2          dest         
+0x00000000 1441803    o-right-pc 600        524288     2          dest         
+0x00000000 1933324    o-right-pc 600        2404352    2          dest         
+0x00000000 1835021    o-right-pc 600        389120     2          dest         
+0x00000000 1540110    o-right-pc 600        6631424    2          dest         
+0x00000000 1802255    o-right-pc 600        6631424    2          dest         
+0x00000000 1703952    o-right-pc 600        2404352    2          dest         
+0x00000000 1867793    o-right-pc 600        389120     2          dest         
+0x00000000 1966098    o-right-pc 600        159744     2          dest         
+0x00000000 1998867    o-right-pc 600        159744     2          dest         
+0x00000000 2031636    o-right-pc 600        20480      2          dest         
+0x00000000 2064405    o-right-pc 600        20480      2          dest         
+0x00722e79 2326550    o-right-pc 600        56         10                      
+
+------ Semaphore Arrays --------
+key        semid      owner      perms      nsems     
+

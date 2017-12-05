@@ -1,0 +1,28 @@
+ EXPLAIN select l_orderkey, sum(l_extendedprice * (1 - l_discount)) as revenue, o_orderdate, o_shippriority from customer, orders, lineitem where c_mktsegment = 'AUTOMOBILE' and c_custkey = o_custkey and l_orderkey = o_orderkey and o_orderdate < date '1995-03-24' and l_shipdate > date '1995-03-24' group by l_orderkey, o_orderdate, o_shippriority order by revenue desc, o_orderdate LIMIT 10;
+                                                          QUERY PLAN                                                          
+------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=1159068.67..1159068.70 rows=10 width=20)
+   ->  Sort  (cost=1159068.67..1162245.44 rows=1270707 width=20)
+         Sort Key: (sum((lineitem.l_extendedprice * ('1'::double precision - lineitem.l_discount)))) DESC, orders.o_orderdate
+         ->  Finalize GroupAggregate  (cost=971526.81..1131609.15 rows=1270707 width=20)
+               Group Key: lineitem.l_orderkey, orders.o_orderdate, orders.o_shippriority
+               ->  Gather Merge  (cost=971526.81..1108312.86 rows=1058922 width=20)
+                     Workers Planned: 2
+                     ->  Partial GroupAggregate  (cost=970526.79..985086.97 rows=529461 width=20)
+                           Group Key: lineitem.l_orderkey, orders.o_orderdate, orders.o_shippriority
+                           ->  Sort  (cost=970526.79..971850.44 rows=529461 width=20)
+                                 Sort Key: lineitem.l_orderkey, orders.o_orderdate, orders.o_shippriority
+                                 ->  Hash Join  (cost=276962.52..909329.99 rows=529461 width=20)
+                                       Hash Cond: (lineitem.l_orderkey = orders.o_orderkey)
+                                       ->  Parallel Seq Scan on lineitem  (cost=0.00..551332.04 rows=5390887 width=12)
+                                             Filter: (l_shipdate > '1995-03-24'::date)
+                                       ->  Hash  (cost=266715.71..266715.71 rows=589425 width=12)
+                                             ->  Hash Join  (cost=23578.50..266715.71 rows=589425 width=12)
+                                                   Hash Cond: (orders.o_custkey = customer.c_custkey)
+                                                   ->  Seq Scan on orders  (cost=0.00..176349.85 rows=2961933 width=16)
+                                                         Filter: (o_orderdate < '1995-03-24'::date)
+                                                   ->  Hash  (cost=21619.00..21619.00 rows=119400 width=4)
+                                                         ->  Seq Scan on customer  (cost=0.00..21619.00 rows=119400 width=4)
+                                                               Filter: (c_mktsegment = 'AUTOMOBILE'::bpchar)
+(23 rows)
+

@@ -1,0 +1,19 @@
+
+reset
+set auto x
+set auto y
+
+set samples 25
+set boxwidth 0.3 absolute
+set style fill solid 0.25 border
+
+set xlabel "Queries"
+set xrange [0:25]
+
+set ylabel "Query Time in Seconds"
+set ytics
+
+set term png nocrop size 800,600 font arial 10
+set output "q_time.png"
+set xtics ("Q1" 1, "Q2" 2, "Q3" 3, "Q4" 4, "Q5" 5, "Q6" 6, "Q7" 7, "Q8" 8, "Q9" 9, "Q10" 10, "Q11" 11, "Q12" 12, "Q13" 13, "Q14" 14, "Q15" 15, "Q16" 16, "Q17" 17, "Q18" 18, "Q19" 19, "Q20" 20, "Q21" 21, "Q22" 22, "RF1" 23, "RF2" 24)
+plot "q_time_p.data" using ($1-0.15):2 title "Power Test" with boxes, "q_time_t.data" using ($1+0.15):2 title "Throughput Test" with boxes

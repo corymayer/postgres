@@ -1,0 +1,21 @@
+ EXPLAIN select o_orderpriority, count(*) as order_count from orders where o_orderdate >= date '1993-12-01' and o_orderdate < date '1993-12-01' + interval '3 months' and exists ( select * from lineitem where l_orderkey = o_orderkey and l_commitdate < l_receiptdate ) group by o_orderpriority order by o_orderpriority;
+                                                                           QUERY PLAN                                                                           
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Finalize GroupAggregate  (cost=66992.30..67045.39 rows=5 width=24)
+   Group Key: orders.o_orderpriority
+   ->  Gather Merge  (cost=66992.30..67045.29 rows=10 width=24)
+         Workers Planned: 2
+         ->  Partial GroupAggregate  (cost=65992.28..66044.11 rows=5 width=24)
+               Group Key: orders.o_orderpriority
+               ->  Sort  (cost=65992.28..66009.54 rows=6905 width=16)
+                     Sort Key: orders.o_orderpriority
+                     ->  Nested Loop Semi Join  (cost=1321.03..65551.96 rows=6905 width=16)
+                           ->  Parallel Bitmap Heap Scan on orders  (cost=1320.59..27060.50 rows=25860 width=20)
+                                 Recheck Cond: ((o_orderdate >= '1993-12-01'::date) AND (o_orderdate < '1994-03-01 00:00:00'::timestamp without time zone))
+                                 ->  Bitmap Index Scan on i_o_orderdate  (cost=0.00..1305.08 rows=62065 width=0)
+                                       Index Cond: ((o_orderdate >= '1993-12-01'::date) AND (o_orderdate < '1994-03-01 00:00:00'::timestamp without time zone))
+                           ->  Index Scan using i_l_orderkey on lineitem  (cost=0.43..4.89 rows=5 width=4)
+                                 Index Cond: (l_orderkey = orders.o_orderkey)
+                                 Filter: (l_commitdate < l_receiptdate)
+(16 rows)
+

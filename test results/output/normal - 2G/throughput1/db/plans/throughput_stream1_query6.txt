@@ -1,0 +1,11 @@
+ EXPLAIN select sum(l_extendedprice * l_discount) as revenue from lineitem where l_shipdate >= date '1993-01-01' and l_shipdate < date '1993-01-01' + interval '1 year' and l_discount between 0.03 - 0.01 and 0.03 + 0.01 and l_quantity < 24;
+                                                                                                                                 QUERY PLAN                                                                                                                                 
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Finalize Aggregate  (cost=327084.41..327084.42 rows=1 width=4)
+   ->  Gather  (cost=327084.19..327084.40 rows=2 width=4)
+         Workers Planned: 2
+         ->  Partial Aggregate  (cost=326084.19..326084.20 rows=1 width=4)
+               ->  Parallel Seq Scan on lineitem  (cost=0.00..325758.90 rows=65058 width=8)
+                     Filter: ((l_shipdate >= '1993-01-01'::date) AND (l_shipdate < '1994-01-01 00:00:00'::timestamp without time zone) AND (l_discount >= '0.02'::double precision) AND (l_discount <= '0.04'::double precision) AND (l_quantity < '24'::double precision))
+(6 rows)
+

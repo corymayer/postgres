@@ -1,0 +1,20 @@
+ EXPLAIN select c_count, count(*) as custdist from ( select c_custkey, count(o_orderkey) from customer left outer join orders on c_custkey = o_custkey and o_comment not like '%pending%deposits%' group by c_custkey ) as c_orders (c_custkey, c_count) group by c_count order by custdist desc, c_count desc;
+                                                               QUERY PLAN                                                                
+-----------------------------------------------------------------------------------------------------------------------------------------
+ Sort  (cost=318683.94..318684.44 rows=200 width=16)
+   Sort Key: (count(*)) DESC, (count(orders.o_orderkey)) DESC
+   ->  HashAggregate  (cost=318674.29..318676.29 rows=200 width=16)
+         Group Key: count(orders.o_orderkey)
+         ->  Finalize GroupAggregate  (cost=1000.88..314174.29 rows=300000 width=12)
+               Group Key: customer.c_custkey
+               ->  Gather Merge  (cost=1000.88..308174.29 rows=600000 width=12)
+                     Workers Planned: 2
+                     ->  Partial GroupAggregate  (cost=0.85..237919.38 rows=300000 width=12)
+                           Group Key: customer.c_custkey
+                           ->  Nested Loop Left Join  (cost=0.85..228792.09 rows=1225458 width=8)
+                                 ->  Parallel Index Only Scan using customer_pkey on customer  (cost=0.42..13115.43 rows=125000 width=4)
+                                 ->  Index Scan using i_o_custkey on orders  (cost=0.43..1.56 rows=17 width=8)
+                                       Index Cond: (customer.c_custkey = o_custkey)
+                                       Filter: ((o_comment)::text !~~ '%pending%deposits%'::text)
+(15 rows)
+

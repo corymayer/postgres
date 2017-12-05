@@ -1,0 +1,38 @@
+ EXPLAIN select s_name, count(*) as numwait from supplier, lineitem l1, orders, nation where s_suppkey = l1.l_suppkey and o_orderkey = l1.l_orderkey and o_orderstatus = 'F' and l1.l_receiptdate > l1.l_commitdate and exists ( select * from lineitem l2 where l2.l_orderkey = l1.l_orderkey and l2.l_suppkey <> l1.l_suppkey ) and not exists ( select * from lineitem l3 where l3.l_orderkey = l1.l_orderkey and l3.l_suppkey <> l1.l_suppkey and l3.l_receiptdate > l3.l_commitdate ) and s_nationkey = n_nationkey and n_name = 'UNITED KINGDOM' group by s_name order by numwait desc, s_name LIMIT 100;
+                                                                   QUERY PLAN                                                                    
+-------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=344735.56..344735.57 rows=1 width=34)
+   ->  Sort  (cost=344735.56..344735.57 rows=1 width=34)
+         Sort Key: (count(*)) DESC, supplier.s_name
+         ->  GroupAggregate  (cost=344735.53..344735.55 rows=1 width=34)
+               Group Key: supplier.s_name
+               ->  Sort  (cost=344735.53..344735.54 rows=1 width=26)
+                     Sort Key: supplier.s_name
+                     ->  Nested Loop  (cost=1493.26..344735.52 rows=1 width=26)
+                           ->  Nested Loop Semi Join  (cost=1492.83..344733.05 rows=1 width=34)
+                                 ->  Gather  (cost=1492.39..344729.69 rows=1 width=34)
+                                       Workers Planned: 2
+                                       ->  Nested Loop Anti Join  (cost=492.39..343729.59 rows=1 width=34)
+                                             ->  Hash Join  (cost=491.96..283163.03 rows=66695 width=34)
+                                                   Hash Cond: (l1.l_suppkey = supplier.s_suppkey)
+                                                   ->  Parallel Seq Scan on lineitem l1  (cost=0.00..275751.47 rows=1667372 width=8)
+                                                         Filter: (l_receiptdate > l_commitdate)
+                                                   ->  Hash  (cost=481.96..481.96 rows=800 width=30)
+                                                         ->  Nested Loop  (cost=18.49..481.96 rows=800 width=30)
+                                                               ->  Seq Scan on nation  (cost=0.00..1.31 rows=1 width=4)
+                                                                     Filter: (n_name = 'UNITED KINGDOM'::bpchar)
+                                                               ->  Bitmap Heap Scan on supplier  (cost=18.49..472.65 rows=800 width=34)
+                                                                     Recheck Cond: (s_nationkey = nation.n_nationkey)
+                                                                     ->  Bitmap Index Scan on i_s_nationkey  (cost=0.00..18.29 rows=800 width=0)
+                                                                           Index Cond: (s_nationkey = nation.n_nationkey)
+                                             ->  Index Scan using i_l_orderkey on lineitem l3  (cost=0.43..3.42 rows=10 width=8)
+                                                   Index Cond: (l_orderkey = l1.l_orderkey)
+                                                   Filter: ((l_receiptdate > l_commitdate) AND (l_suppkey <> l1.l_suppkey))
+                                 ->  Index Scan using i_l_orderkey on lineitem l2  (cost=0.43..3.34 rows=30 width=8)
+                                       Index Cond: (l_orderkey = l1.l_orderkey)
+                                       Filter: (l_suppkey <> l1.l_suppkey)
+                           ->  Index Scan using orders_pkey on orders  (cost=0.43..2.48 rows=1 width=4)
+                                 Index Cond: (o_orderkey = l1.l_orderkey)
+                                 Filter: (o_orderstatus = 'F'::bpchar)
+(33 rows)
+

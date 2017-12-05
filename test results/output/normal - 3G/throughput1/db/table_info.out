@@ -1,0 +1,43 @@
+
+ customer       |         223841 |        144328 |         22907 |      1780640
+ lineitem       |       10093799 |       3676272 |       1125798 |     77241347
+ nation         |             10 |         10113 |            16 |        10123
+ orders         |        8101408 |       1490359 |       1197415 |     23902854
+ part           |         179374 |         99499 |          4421 |      2252546
+ partsupp       |         812747 |        628035 |         34147 |      9635100
+ region         |              5 |          2522 |             8 |           19
+ supplier       |          73951 |       1306853 |          7895 |      2794835
+ tmp_orderkey1  |              9 |          1531 |               |             
+ tmp_orderkey10 |              0 |             0 |               |             
+ tmp_orderkey11 |              0 |             0 |               |             
+ tmp_orderkey12 |              0 |             0 |               |             
+ tmp_orderkey2  |              0 |             0 |               |             
+ tmp_orderkey3  |              0 |             0 |               |             
+ tmp_orderkey4  |              0 |             0 |               |             
+ tmp_orderkey5  |              0 |             0 |               |             
+ tmp_orderkey6  |              0 |             0 |               |             
+ tmp_orderkey7  |              0 |             0 |               |             
+ tmp_orderkey8  |              0 |             0 |               |             
+ tmp_orderkey9  |              0 |             0 |               |             
+
+ customer       |         380469 |        265183 |         43653 |      1905165
+ lineitem       |       17482473 |       5869733 |       2276103 |     82753095
+ nation         |             18 |         20657 |            27 |        20656
+ orders         |       15950756 |       2695727 |       2413931 |     30110862
+ part           |         310410 |        165509 |          6652 |      2252668
+ partsupp       |        1395738 |       1082192 |         61026 |      9828232
+ region         |              8 |          5152 |            14 |           33
+ supplier       |          82053 |       1327694 |          8053 |      2815802
+ tmp_orderkey1  |             20 |          1544 |               |             
+ tmp_orderkey10 |              0 |             0 |               |             
+ tmp_orderkey11 |              0 |             0 |               |             
+ tmp_orderkey12 |              0 |             0 |               |             
+ tmp_orderkey2  |             23 |          1517 |               |             
+ tmp_orderkey3  |              9 |            17 |               |             
+ tmp_orderkey4  |              0 |             0 |               |             
+ tmp_orderkey5  |              0 |             0 |               |             
+ tmp_orderkey6  |              0 |             0 |               |             
+ tmp_orderkey7  |              0 |             0 |               |             
+ tmp_orderkey8  |              0 |             0 |               |             
+ tmp_orderkey9  |              0 |             0 |               |             
+

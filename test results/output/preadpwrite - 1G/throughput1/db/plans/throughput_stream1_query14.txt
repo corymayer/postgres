@@ -1,0 +1,17 @@
+ EXPLAIN select 100.00 * sum(case when p_type like 'PROMO%' then l_extendedprice * (1 - l_discount) else 0 end) / sum(l_extendedprice * (1 - l_discount)) as promo_revenue from lineitem, part where l_partkey = p_partkey and l_shipdate >= date '1994-09-01' and l_shipdate < date '1994-09-01' + interval '1 month';
+                                                                       QUERY PLAN                                                                       
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+ Finalize Aggregate  (cost=114815.01..114815.03 rows=1 width=8)
+   ->  Gather  (cost=114814.79..114815.00 rows=2 width=16)
+         Workers Planned: 2
+         ->  Partial Aggregate  (cost=113814.79..113814.80 rows=1 width=16)
+               ->  Hash Join  (cost=11408.56..113308.20 rows=28948 width=29)
+                     Hash Cond: (lineitem.l_partkey = part.p_partkey)
+                     ->  Parallel Bitmap Heap Scan on lineitem  (cost=1476.56..101358.73 rows=28948 width=12)
+                           Recheck Cond: ((l_shipdate >= '1994-09-01'::date) AND (l_shipdate < '1994-10-01 00:00:00'::timestamp without time zone))
+                           ->  Bitmap Index Scan on i_l_shipdate  (cost=0.00..1459.19 rows=69476 width=0)
+                                 Index Cond: ((l_shipdate >= '1994-09-01'::date) AND (l_shipdate < '1994-10-01 00:00:00'::timestamp without time zone))
+                     ->  Hash  (cost=6064.00..6064.00 rows=200000 width=25)
+                           ->  Seq Scan on part  (cost=0.00..6064.00 rows=200000 width=25)
+(12 rows)
+

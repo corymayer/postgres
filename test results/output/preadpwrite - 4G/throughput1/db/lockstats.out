@@ -1,0 +1,6 @@
+
+ relname  | pid  |      mode       | granted 
+----------+------+-----------------+---------
+ pg_locks | 7799 | AccessShareLock | t
+(1 row)
+

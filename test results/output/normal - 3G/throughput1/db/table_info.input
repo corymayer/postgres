@@ -1,0 +1,13 @@
+set xlabel "Elapsed Time (Minutes)"
+set ylabel "Blocks Read"
+set term png small
+set output "/home/o-right-pc/dbt3/scripts/output/2/throughput1/db/table_info.png"
+set yrange [0:]
+plot "/home/o-right-pc/dbt3/scripts/output/2/throughput1/db/table_info.data" using 1:1 title "customer" with lines, \
+"/home/o-right-pc/dbt3/scripts/output/2/throughput1/db/table_info.data" using 1:2 title "lineitem" with lines, \
+"/home/o-right-pc/dbt3/scripts/output/2/throughput1/db/table_info.data" using 1:3 title "nation" with lines, \
+"/home/o-right-pc/dbt3/scripts/output/2/throughput1/db/table_info.data" using 1:4 title "orders" with lines, \
+"/home/o-right-pc/dbt3/scripts/output/2/throughput1/db/table_info.data" using 1:5 title "part" with lines, \
+"/home/o-right-pc/dbt3/scripts/output/2/throughput1/db/table_info.data" using 1:6 title "partsupp" with lines, \
+"/home/o-right-pc/dbt3/scripts/output/2/throughput1/db/table_info.data" using 1:7 title "region" with lines, \
+"/home/o-right-pc/dbt3/scripts/output/2/throughput1/db/table_info.data" using 1:8 title "supplier" with lines
