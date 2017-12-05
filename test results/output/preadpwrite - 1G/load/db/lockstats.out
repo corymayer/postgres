@@ -1,33 +1,33 @@
 
     relname    |  pid  |       mode       | granted 
 ---------------+-------+------------------+---------
- customer      | 10361 | RowExclusiveLock | t
- customer_pkey | 10361 | RowExclusiveLock | t
- lineitem      | 10366 | RowExclusiveLock | t
- lineitem_pkey | 10366 | RowExclusiveLock | t
- orders        | 10363 | RowExclusiveLock | t
- orders_pkey   | 10363 | RowExclusiveLock | t
- part          | 10359 | RowExclusiveLock | t
- part_pkey     | 10359 | RowExclusiveLock | t
- partsupp      | 10360 | RowExclusiveLock | t
- partsupp_pkey | 10360 | RowExclusiveLock | t
- pg_locks      | 10371 | AccessShareLock  | t
- supplier      | 10358 | RowExclusiveLock | t
- supplier_pkey | 10358 | RowExclusiveLock | t
+ customer      | 15001 | RowExclusiveLock | t
+ customer_pkey | 15001 | RowExclusiveLock | t
+ lineitem      | 15005 | RowExclusiveLock | t
+ lineitem_pkey | 15005 | RowExclusiveLock | t
+ orders        | 15003 | RowExclusiveLock | t
+ orders_pkey   | 15003 | RowExclusiveLock | t
+ part          | 15000 | RowExclusiveLock | t
+ part_pkey     | 15000 | RowExclusiveLock | t
+ partsupp      | 15002 | RowExclusiveLock | t
+ partsupp_pkey | 15002 | RowExclusiveLock | t
+ pg_locks      | 15012 | AccessShareLock  | t
+ supplier      | 14999 | RowExclusiveLock | t
+ supplier_pkey | 14999 | RowExclusiveLock | t
 (13 rows)
 
   relname  |  pid  |           mode           | granted 
 -----------+-------+--------------------------+---------
- lineitem  | 10424 | ShareLock                | t
- lineitem  | 10418 | ShareLock                | t
- lineitem  | 10427 | ShareLock                | t
- lineitem  | 10428 | ShareLock                | t
- lineitem  | 10419 | ShareLock                | t
- lineitem  | 10425 | ShareLock                | t
- lineitem  | 10420 | ShareLock                | t
- lineitem  | 10421 | ShareLock                | t
- part      | 10384 | ShareUpdateExclusiveLock | t
- part_pkey | 10384 | AccessShareLock          | t
- pg_locks  | 10523 | AccessShareLock          | t
+ lineitem  | 15067 | ShareLock                | t
+ lineitem  | 15066 | ShareLock                | t
+ lineitem  | 15068 | ShareLock                | t
+ lineitem  | 15059 | ShareLock                | t
+ lineitem  | 15063 | ShareLock                | t
+ lineitem  | 15065 | ShareLock                | t
+ lineitem  | 15060 | ShareLock                | t
+ lineitem  | 15062 | ShareLock                | t
+ part      | 15023 | ShareUpdateExclusiveLock | t
+ part_pkey | 15023 | AccessShareLock          | t
+ pg_locks  | 15079 | AccessShareLock          | t
 (11 rows)
 

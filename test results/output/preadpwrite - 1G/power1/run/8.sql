@@ -1,4 +1,4 @@
--- using 1205002340 as a seed to the RNG
+-- using 1205092612 as a seed to the RNG
 -- @(#)8.sql	2.1.8.1
 -- TPC-H/TPC-R National Market Share Query (Q8)
 -- Functional Query Definition
@@ -11,7 +11,7 @@ EXPLAIN
 select
 	o_year,
 	sum(case
-		when nation = 'KENYA' then volume
+		when nation = 'ALGERIA' then volume
 		else 0
 	end) / sum(volume) as mkt_share
 from
@@ -39,7 +39,7 @@ from
 			and r_name = 'AFRICA'
 			and s_nationkey = n2.n_nationkey
 			and o_orderdate between date '1995-01-01' and date '1996-12-31'
-			and p_type = 'ECONOMY POLISHED STEEL'
+			and p_type = 'MEDIUM BURNISHED STEEL'
 	) as all_nations
 group by
 	o_year

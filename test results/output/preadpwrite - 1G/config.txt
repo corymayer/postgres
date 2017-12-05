@@ -5,7 +5,7 @@ dbver:  PostgreSQL 11devel on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 5.4.0
 procps: 
 sysstat: 31:
 CPUS: 8
-MHz:  3474.395
+MHz:  3700.000
 model:  Intel(R) Xeon(R) CPU E5-1620 v2 @ 3.70GHz
 memory:        16373232 kB
 scale_factor: 1

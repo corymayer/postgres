@@ -1,4 +1,4 @@
--- using 1205002340 as a seed to the RNG
+-- using 1205092612 as a seed to the RNG
 -- @(#)21.sql	2.1.8.1
 -- TPC-H/TPC-R Suppliers Who Kept Orders Waiting Query (Q21)
 -- Functional Query Definition
@@ -41,7 +41,7 @@ where
 			and l3.l_receiptdate > l3.l_commitdate
 	)
 	and s_nationkey = n_nationkey
-	and n_name = 'IRAQ'
+	and n_name = 'ROMANIA'
 group by
 	s_name
 order by

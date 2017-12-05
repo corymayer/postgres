@@ -1,20 +1,20 @@
- EXPLAIN select o_orderpriority, count(*) as order_count from orders where o_orderdate >= date '1996-09-01' and o_orderdate < date '1996-09-01' + interval '3 months' and exists ( select * from lineitem where l_orderkey = o_orderkey and l_commitdate < l_receiptdate ) group by o_orderpriority order by o_orderpriority;
+ EXPLAIN select o_orderpriority, count(*) as order_count from orders where o_orderdate >= date '1996-07-01' and o_orderdate < date '1996-07-01' + interval '3 months' and exists ( select * from lineitem where l_orderkey = o_orderkey and l_commitdate < l_receiptdate ) group by o_orderpriority order by o_orderpriority;
                                                                            QUERY PLAN                                                                           
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
- Finalize GroupAggregate  (cost=66013.52..66064.86 rows=5 width=24)
+ Finalize GroupAggregate  (cost=64864.05..64914.75 rows=5 width=24)
    Group Key: orders.o_orderpriority
-   ->  Gather Merge  (cost=66013.52..66064.76 rows=10 width=24)
+   ->  Gather Merge  (cost=64864.05..64914.65 rows=10 width=24)
          Workers Planned: 2
-         ->  Partial GroupAggregate  (cost=65013.50..65063.58 rows=5 width=24)
+         ->  Partial GroupAggregate  (cost=63864.03..63913.47 rows=5 width=24)
                Group Key: orders.o_orderpriority
-               ->  Sort  (cost=65013.50..65030.18 rows=6671 width=16)
+               ->  Sort  (cost=63864.03..63880.49 rows=6586 width=16)
                      Sort Key: orders.o_orderpriority
-                     ->  Nested Loop Semi Join  (cost=1277.15..64589.77 rows=6671 width=16)
-                           ->  Parallel Bitmap Heap Scan on orders  (cost=1276.72..27004.51 rows=25052 width=20)
-                                 Recheck Cond: ((o_orderdate >= '1996-09-01'::date) AND (o_orderdate < '1996-12-01 00:00:00'::timestamp without time zone))
-                                 ->  Bitmap Index Scan on i_o_orderdate  (cost=0.00..1261.69 rows=60126 width=0)
-                                       Index Cond: ((o_orderdate >= '1996-09-01'::date) AND (o_orderdate < '1996-12-01 00:00:00'::timestamp without time zone))
-                           ->  Index Scan using i_l_orderkey on lineitem  (cost=0.43..4.95 rows=5 width=4)
+                     ->  Nested Loop Semi Join  (cost=1207.36..63446.30 rows=6586 width=16)
+                           ->  Parallel Bitmap Heap Scan on orders  (cost=1206.92..26914.11 rows=23679 width=20)
+                                 Recheck Cond: ((o_orderdate >= '1996-07-01'::date) AND (o_orderdate < '1996-10-01 00:00:00'::timestamp without time zone))
+                                 ->  Bitmap Index Scan on i_o_orderdate  (cost=0.00..1192.72 rows=56829 width=0)
+                                       Index Cond: ((o_orderdate >= '1996-07-01'::date) AND (o_orderdate < '1996-10-01 00:00:00'::timestamp without time zone))
+                           ->  Index Scan using i_l_orderkey on lineitem  (cost=0.43..5.03 rows=5 width=4)
                                  Index Cond: (l_orderkey = orders.o_orderkey)
                                  Filter: (l_commitdate < l_receiptdate)
 (16 rows)

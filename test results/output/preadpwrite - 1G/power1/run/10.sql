@@ -1,4 +1,4 @@
--- using 1205002340 as a seed to the RNG
+-- using 1205092612 as a seed to the RNG
 -- @(#)10.sql	2.1.8.1
 -- TPC-H/TPC-R Returned Item Reporting Query (Q10)
 -- Functional Query Definition
@@ -25,8 +25,8 @@ from
 where
 	c_custkey = o_custkey
 	and l_orderkey = o_orderkey
-	and o_orderdate >= date '1994-08-01'
-	and o_orderdate < date '1994-08-01' + interval '3 months'
+	and o_orderdate >= date '1993-08-01'
+	and o_orderdate < date '1993-08-01' + interval '3 months'
 	and l_returnflag = 'R'
 	and c_nationkey = n_nationkey
 group by

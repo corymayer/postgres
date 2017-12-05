@@ -1,20 +1,20 @@
- EXPLAIN select n_name, sum(l_extendedprice * (1 - l_discount)) as revenue from customer, orders, lineitem, supplier, nation, region where c_custkey = o_custkey and l_orderkey = o_orderkey and l_suppkey = s_suppkey and c_nationkey = s_nationkey and s_nationkey = n_nationkey and n_regionkey = r_regionkey and r_name = 'MIDDLE EAST' and o_orderdate >= date '1996-01-01' and o_orderdate < date '1996-01-01' + interval '1 year' group by n_name order by revenue desc;
+ EXPLAIN select n_name, sum(l_extendedprice * (1 - l_discount)) as revenue from customer, orders, lineitem, supplier, nation, region where c_custkey = o_custkey and l_orderkey = o_orderkey and l_suppkey = s_suppkey and c_nationkey = s_nationkey and s_nationkey = n_nationkey and n_regionkey = r_regionkey and r_name = 'EUROPE' and o_orderdate >= date '1995-01-01' and o_orderdate < date '1995-01-01' + interval '1 year' group by n_name order by revenue desc;
                                                                                QUERY PLAN                                                                               
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- Sort  (cost=84805.61..84805.67 rows=25 width=34)
+ Sort  (cost=84313.25..84313.31 rows=25 width=34)
    Sort Key: (sum((lineitem.l_extendedprice * ('1'::double precision - lineitem.l_discount)))) DESC
-   ->  Finalize GroupAggregate  (cost=84760.37..84805.03 rows=25 width=34)
+   ->  Finalize GroupAggregate  (cost=84267.97..84312.67 rows=25 width=34)
          Group Key: nation.n_name
-         ->  Gather Merge  (cost=84760.37..84804.53 rows=50 width=34)
+         ->  Gather Merge  (cost=84267.97..84312.17 rows=50 width=34)
                Workers Planned: 2
-               ->  Partial GroupAggregate  (cost=83760.35..83798.73 rows=25 width=34)
+               ->  Partial GroupAggregate  (cost=83267.95..83306.37 rows=25 width=34)
                      Group Key: nation.n_name
-                     ->  Sort  (cost=83760.35..83767.97 rows=3051 width=34)
+                     ->  Sort  (cost=83267.95..83275.58 rows=3054 width=34)
                            Sort Key: nation.n_name
-                           ->  Hash Join  (cost=471.52..83583.77 rows=3051 width=34)
+                           ->  Hash Join  (cost=471.52..83091.17 rows=3054 width=34)
                                  Hash Cond: ((lineitem.l_suppkey = supplier.s_suppkey) AND (customer.c_nationkey = supplier.s_nationkey))
-                                 ->  Nested Loop  (cost=3.52..81952.76 rows=76263 width=46)
-                                       ->  Nested Loop  (cost=3.09..24832.03 rows=19062 width=38)
+                                 ->  Nested Loop  (cost=3.52..81458.06 rows=76401 width=46)
+                                       ->  Nested Loop  (cost=3.09..24832.03 rows=19097 width=38)
                                              ->  Hash Join  (cost=2.66..4518.03 rows=12500 width=38)
                                                    Hash Cond: (customer.c_nationkey = nation.n_nationkey)
                                                    ->  Parallel Seq Scan on customer  (cost=0.00..4156.00 rows=62500 width=8)
@@ -24,11 +24,11 @@
                                                                ->  Seq Scan on nation  (cost=0.00..1.25 rows=25 width=34)
                                                                ->  Hash  (cost=1.06..1.06 rows=1 width=4)
                                                                      ->  Seq Scan on region  (cost=0.00..1.06 rows=1 width=4)
-                                                                           Filter: (r_name = 'MIDDLE EAST'::bpchar)
+                                                                           Filter: (r_name = 'EUROPE'::bpchar)
                                              ->  Index Scan using i_o_custkey on orders  (cost=0.43..1.60 rows=3 width=8)
                                                    Index Cond: (o_custkey = customer.c_custkey)
-                                                   Filter: ((o_orderdate >= '1996-01-01'::date) AND (o_orderdate < '1997-01-01 00:00:00'::timestamp without time zone))
-                                       ->  Index Scan using i_l_orderkey_quantity on lineitem  (cost=0.43..2.85 rows=15 width=16)
+                                                   Filter: ((o_orderdate >= '1995-01-01'::date) AND (o_orderdate < '1996-01-01 00:00:00'::timestamp without time zone))
+                                       ->  Index Scan using i_l_orderkey on lineitem  (cost=0.43..2.83 rows=14 width=16)
                                              Index Cond: (l_orderkey = orders.o_orderkey)
                                  ->  Hash  (cost=318.00..318.00 rows=10000 width=8)
                                        ->  Seq Scan on supplier  (cost=0.00..318.00 rows=10000 width=8)

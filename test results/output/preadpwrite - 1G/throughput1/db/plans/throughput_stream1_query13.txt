@@ -1,20 +1,20 @@
- EXPLAIN select c_count, count(*) as custdist from ( select c_custkey, count(o_orderkey) from customer left outer join orders on c_custkey = o_custkey and o_comment not like '%special%requests%' group by c_custkey ) as c_orders (c_custkey, c_count) group by c_count order by custdist desc, c_count desc;
+ EXPLAIN select c_count, count(*) as custdist from ( select c_custkey, count(o_orderkey) from customer left outer join orders on c_custkey = o_custkey and o_comment not like '%express%requests%' group by c_custkey ) as c_orders (c_custkey, c_count) group by c_count order by custdist desc, c_count desc;
                                                               QUERY PLAN                                                               
 ---------------------------------------------------------------------------------------------------------------------------------------
- Sort  (cost=159787.52..159788.02 rows=200 width=16)
+ Sort  (cost=159725.66..159726.16 rows=200 width=16)
    Sort Key: (count(*)) DESC, (count(orders.o_orderkey)) DESC
-   ->  HashAggregate  (cost=159777.87..159779.87 rows=200 width=16)
+   ->  HashAggregate  (cost=159716.02..159718.02 rows=200 width=16)
          Group Key: count(orders.o_orderkey)
-         ->  Finalize GroupAggregate  (cost=1000.87..157527.87 rows=150000 width=12)
+         ->  Finalize GroupAggregate  (cost=1000.87..157466.02 rows=150000 width=12)
                Group Key: customer.c_custkey
-               ->  Gather Merge  (cost=1000.87..154527.87 rows=300000 width=12)
+               ->  Gather Merge  (cost=1000.87..154466.02 rows=300000 width=12)
                      Workers Planned: 2
-                     ->  Partial GroupAggregate  (cost=0.85..118900.41 rows=150000 width=12)
+                     ->  Partial GroupAggregate  (cost=0.85..118838.55 rows=150000 width=12)
                            Group Key: customer.c_custkey
-                           ->  Nested Loop Left Join  (cost=0.85..114272.51 rows=625580 width=8)
-                                 ->  Parallel Index Only Scan using customer_pkey on customer  (cost=0.42..6565.42 rows=62500 width=4)
+                           ->  Nested Loop Left Join  (cost=0.85..114273.00 rows=613111 width=8)
+                                 ->  Parallel Index Only Scan using customer_pkey on customer  (cost=0.42..6565.91 rows=62500 width=4)
                                  ->  Index Scan using i_o_custkey on orders  (cost=0.43..1.55 rows=17 width=8)
                                        Index Cond: (customer.c_custkey = o_custkey)
-                                       Filter: ((o_comment)::text !~~ '%special%requests%'::text)
+                                       Filter: ((o_comment)::text !~~ '%express%requests%'::text)
 (15 rows)
 

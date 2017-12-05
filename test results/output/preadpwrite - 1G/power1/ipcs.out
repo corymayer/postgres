@@ -27,7 +27,9 @@ key        shmid      owner      perms      bytes      nattch     status
 0x00000000 1998867    o-right-pc 600        159744     2          dest         
 0x00000000 2031636    o-right-pc 600        20480      2          dest         
 0x00000000 2064405    o-right-pc 600        20480      2          dest         
-0x00722e79 2392086    o-right-pc 600        56         6                       
+0x00000000 2523158    o-right-pc 600        45056      2          dest         
+0x00722e79 2719767    o-right-pc 600        56         6                       
+0x00000000 2490392    o-right-pc 600        45056      2          dest         
 
 ------ Semaphore Arrays --------
 key        semid      owner      perms      nsems     

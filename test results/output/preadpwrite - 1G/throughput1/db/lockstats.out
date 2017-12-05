@@ -1,6 +1,20 @@
 
- relname  |  pid  |      mode       | granted 
-----------+-------+-----------------+---------
- pg_locks | 11105 | AccessShareLock | t
-(1 row)
+    relname    |  pid  |      mode       | granted 
+---------------+-------+-----------------+---------
+ i_n_regionkey | 15694 | AccessShareLock | t
+ i_ps_partkey  | 15694 | AccessShareLock | t
+ i_ps_suppkey  | 15694 | AccessShareLock | t
+ i_s_nationkey | 15694 | AccessShareLock | t
+ nation        | 15694 | AccessShareLock | t
+ nation_pkey   | 15694 | AccessShareLock | t
+ part          | 15694 | AccessShareLock | t
+ part_pkey     | 15694 | AccessShareLock | t
+ partsupp      | 15694 | AccessShareLock | t
+ partsupp_pkey | 15694 | AccessShareLock | t
+ pg_locks      | 15696 | AccessShareLock | t
+ region        | 15694 | AccessShareLock | t
+ region_pkey   | 15694 | AccessShareLock | t
+ supplier      | 15694 | AccessShareLock | t
+ supplier_pkey | 15694 | AccessShareLock | t
+(15 rows)
 

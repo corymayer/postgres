@@ -1,4 +1,4 @@
--- using 1205002340 as a seed to the RNG
+-- using 1205092612 as a seed to the RNG
 -- @(#)14.sql	2.1.8.1
 -- TPC-H/TPC-R Promotion Effect Query (Q14)
 -- Functional Query Definition
@@ -19,8 +19,8 @@ from
 	part
 where
 	l_partkey = p_partkey
-	and l_shipdate >= date '1994-09-01'
-	and l_shipdate < date '1994-09-01' + interval '1 month';
+	and l_shipdate >= date '1995-03-01'
+	and l_shipdate < date '1995-03-01' + interval '1 month';
 COMMIT;
 
 -- @(#)2.sql	2.1.8.2
@@ -111,7 +111,7 @@ from
 			and p_partkey = l_partkey
 			and o_orderkey = l_orderkey
 			and s_nationkey = n_nationkey
-			and p_name like '%royal%'
+			and p_name like '%honeydew%'
 	) as profit
 group by
 	nation,
@@ -145,7 +145,7 @@ where
 			part
 		where
 			ps_partkey=p_partkey
-			and p_name like 'burnished%'
+			and p_name like 'khaki%'
 			and ps_availqty > (
 				select
 					0.5 * sum(l_quantity)
@@ -154,12 +154,12 @@ where
 				where
 					l_partkey = ps_partkey
 					and l_suppkey = ps_suppkey
-					and l_shipdate >= '1995-01-01'
-					and l_shipdate < date '1995-01-01' + interval '1 year'
+					and l_shipdate >= '1996-01-01'
+					and l_shipdate < date '1996-01-01' + interval '1 year'
 			)
 	)
 	and s_nationkey = n_nationkey
-	and n_name = 'VIETNAM'
+	and n_name = 'UNITED KINGDOM'
 order by
 	s_name;
 COMMIT;
@@ -178,10 +178,10 @@ select
 from
 	lineitem
 where
-	l_shipdate >= date '1996-01-01'
-	and l_shipdate < date '1996-01-01' + interval '1 year'
-	and l_discount between 0.04 - 0.01 and 0.04 + 0.01
-	and l_quantity < 25;
+	l_shipdate >= date '1995-01-01'
+	and l_shipdate < date '1995-01-01' + interval '1 year'
+	and l_discount between 0.08 - 0.01 and 0.08 + 0.01
+	and l_quantity < 24;
 COMMIT;
 
 -- @(#)17.sql	2.1.8.1
@@ -200,7 +200,7 @@ from
 	part
 where
 	p_partkey = l_partkey
-	and p_brand = 'Brand#22'
+	and p_brand = 'Brand#21'
 	and p_container = 'JUMBO CASE'
 	and l_quantity < (
 		select
@@ -240,7 +240,7 @@ where
 			lineitem
 		group by
 			l_orderkey having
-				sum(l_quantity) > 313
+				sum(l_quantity) > 312
 	)
 	and c_custkey = o_custkey
 	and o_orderkey = l_orderkey
@@ -268,7 +268,7 @@ EXPLAIN
 select
 	o_year,
 	sum(case
-		when nation = 'KENYA' then volume
+		when nation = 'ALGERIA' then volume
 		else 0
 	end) / sum(volume) as mkt_share
 from
@@ -296,7 +296,7 @@ from
 			and r_name = 'AFRICA'
 			and s_nationkey = n2.n_nationkey
 			and o_orderdate between date '1995-01-01' and date '1996-12-31'
-			and p_type = 'ECONOMY POLISHED STEEL'
+			and p_type = 'MEDIUM BURNISHED STEEL'
 	) as all_nations
 group by
 	o_year
@@ -346,7 +346,7 @@ where
 			and l3.l_receiptdate > l3.l_commitdate
 	)
 	and s_nationkey = n_nationkey
-	and n_name = 'IRAQ'
+	and n_name = 'ROMANIA'
 group by
 	s_name
 order by
@@ -375,7 +375,7 @@ from
 		from
 			customer left outer join orders on
 				c_custkey = o_custkey
-				and o_comment not like '%special%requests%'
+				and o_comment not like '%express%requests%'
 		group by
 			c_custkey
 	) as c_orders (c_custkey, c_count)
@@ -405,11 +405,11 @@ from
 	orders,
 	lineitem
 where
-	c_mktsegment = 'BUILDING'
+	c_mktsegment = 'FURNITURE'
 	and c_custkey = o_custkey
 	and l_orderkey = o_orderkey
-	and o_orderdate < date '1995-03-24'
-	and l_shipdate > date '1995-03-24'
+	and o_orderdate < date '1995-03-23'
+	and l_shipdate > date '1995-03-23'
 group by
 	l_orderkey,
 	o_orderdate,
@@ -442,7 +442,7 @@ from
 			customer
 		where
 			substr(c_phone, 1, 2) in
-				('30', '29', '27', '18', '24', '15', '21')
+				('11', '28', '16', '32', '20', '24', '27')
 			and c_acctbal > (
 				select
 					avg(c_acctbal)
@@ -451,7 +451,7 @@ from
 				where
 					c_acctbal > 0.00
 					and substr(c_phone, 1, 2) in
-						('30', '29', '27', '18', '24', '15', '21')
+						('11', '28', '16', '32', '20', '24', '27')
 			)
 			and not exists (
 				select
@@ -488,8 +488,8 @@ from
 where
 	p_partkey = ps_partkey
 	and p_brand <> 'Brand#22'
-	and p_type not like 'MEDIUM ANODIZED%'
-	and p_size in (31, 40, 10, 43, 20, 21, 33, 42)
+	and p_type not like 'STANDARD BURNISHED%'
+	and p_size in (13, 1, 43, 3, 37, 14, 46, 21)
 	and ps_suppkey not in (
 		select
 			s_suppkey
@@ -524,8 +524,8 @@ select
 from
 	orders
 where
-	o_orderdate >= date '1996-09-01'
-	and o_orderdate < date '1996-09-01' + interval '3 months'
+	o_orderdate >= date '1996-07-01'
+	and o_orderdate < date '1996-07-01' + interval '3 months'
 	and exists (
 		select
 			*
@@ -560,7 +560,7 @@ from
 where
 	ps_suppkey = s_suppkey
 	and s_nationkey = n_nationkey
-	and n_name = 'ROMANIA'
+	and n_name = 'JORDAN'
 group by
 	ps_partkey having
 		sum(ps_supplycost * ps_availqty) > (
@@ -573,7 +573,7 @@ group by
 			where
 				ps_suppkey = s_suppkey
 				and s_nationkey = n_nationkey
-				and n_name = 'ROMANIA'
+				and n_name = 'JORDAN'
 		)
 order by
 	value desc;
@@ -595,8 +595,8 @@ with revenue0 (supplier_no, total_revenue) as (
         from
                 lineitem
         where
-                l_shipdate >= '1995-05-01'
-                and l_shipdate < date'1995-05-01' + interval '90 days'
+                l_shipdate >= '1995-10-01'
+                and l_shipdate < date'1995-10-01' + interval '90 days'
         group by
                 l_suppkey)
 select
@@ -645,7 +645,7 @@ select
 from
 	lineitem
 where
-	l_shipdate <= date'1998-12-01' - interval '91 day'
+	l_shipdate <= date'1998-12-01' - interval '102 day'
 group by
 	l_returnflag,
 	l_linestatus
@@ -680,8 +680,8 @@ from
 where
 	c_custkey = o_custkey
 	and l_orderkey = o_orderkey
-	and o_orderdate >= date '1994-08-01'
-	and o_orderdate < date '1994-08-01' + interval '3 months'
+	and o_orderdate >= date '1993-08-01'
+	and o_orderdate < date '1993-08-01' + interval '3 months'
 	and l_returnflag = 'R'
 	and c_nationkey = n_nationkey
 group by
@@ -714,9 +714,9 @@ from
 where
 	(
 		p_partkey = l_partkey
-		and p_brand = 'Brand#41'
+		and p_brand = 'Brand#43'
 		and p_container in ('SM CASE', 'SM BOX', 'SM PACK', 'SM PKG')
-		and l_quantity >= 1 and l_quantity <= 1+10
+		and l_quantity >= 10 and l_quantity <= 10+10
 		and p_size between 1 and 5
 		and l_shipmode in ('AIR', 'AIR REG')
 		and l_shipinstruct = 'DELIVER IN PERSON'
@@ -724,9 +724,9 @@ where
 	or
 	(
 		p_partkey = l_partkey
-		and p_brand = 'Brand#35'
+		and p_brand = 'Brand#45'
 		and p_container in ('MED BAG', 'MED BOX', 'MED PKG', 'MED PACK')
-		and l_quantity >= 16 and l_quantity <= 16+10
+		and l_quantity >= 14 and l_quantity <= 14+10
 		and p_size between 1 and 10
 		and l_shipmode in ('AIR', 'AIR REG')
 		and l_shipinstruct = 'DELIVER IN PERSON'
@@ -734,9 +734,9 @@ where
 	or
 	(
 		p_partkey = l_partkey
-		and p_brand = 'Brand#21'
+		and p_brand = 'Brand#42'
 		and p_container in ('LG CASE', 'LG BOX', 'LG PACK', 'LG PKG')
-		and l_quantity >= 28 and l_quantity <= 28+10
+		and l_quantity >= 23 and l_quantity <= 23+10
 		and p_size between 1 and 15
 		and l_shipmode in ('AIR', 'AIR REG')
 		and l_shipinstruct = 'DELIVER IN PERSON'
@@ -769,9 +769,9 @@ where
 	and c_nationkey = s_nationkey
 	and s_nationkey = n_nationkey
 	and n_regionkey = r_regionkey
-	and r_name = 'MIDDLE EAST'
-	and o_orderdate >= date '1996-01-01'
-	and o_orderdate < date '1996-01-01' + interval '1 year'
+	and r_name = 'EUROPE'
+	and o_orderdate >= date '1995-01-01'
+	and o_orderdate < date '1995-01-01' + interval '1 year'
 group by
 	n_name
 order by
@@ -813,8 +813,8 @@ from
 			and s_nationkey = n1.n_nationkey
 			and c_nationkey = n2.n_nationkey
 			and (
-				(n1.n_name = 'INDONESIA' and n2.n_name = 'KENYA')
-				or (n1.n_name = 'KENYA' and n2.n_name = 'INDONESIA')
+				(n1.n_name = 'VIETNAM' and n2.n_name = 'ALGERIA')
+				or (n1.n_name = 'ALGERIA' and n2.n_name = 'VIETNAM')
 			)
 			and l_shipdate between date '1995-01-01' and date '1996-12-31'
 	) as shipping
@@ -856,11 +856,11 @@ from
 	lineitem
 where
 	o_orderkey = l_orderkey
-	and l_shipmode in ('TRUCK', 'REG AIR')
+	and l_shipmode in ('RAIL', 'SHIP')
 	and l_commitdate < l_receiptdate
 	and l_shipdate < l_commitdate
-	and l_receiptdate >= date '1994-01-01'
-	and l_receiptdate < date '1994-01-01' + interval '1 year'
+	and l_receiptdate >= date '1995-01-01'
+	and l_receiptdate < date '1995-01-01' + interval '1 year'
 group by
 	l_shipmode
 order by

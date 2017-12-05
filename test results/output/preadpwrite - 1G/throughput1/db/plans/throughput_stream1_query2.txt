@@ -1,18 +1,18 @@
  EXPLAIN select s_acctbal, s_name, n_name, p_partkey, p_mfgr, s_address, s_phone, s_comment from part, supplier, partsupp, nation, region where p_partkey = ps_partkey and s_suppkey = ps_suppkey and p_size = 19 and p_type like '%NICKEL' and s_nationkey = n_nationkey and n_regionkey = r_regionkey and r_name = 'EUROPE' and ps_supplycost = ( select min(ps_supplycost) from partsupp, supplier, nation, region where p_partkey = ps_partkey and s_suppkey = ps_suppkey and s_nationkey = n_nationkey and n_regionkey = r_regionkey and r_name = 'EUROPE' ) order by s_acctbal desc, n_name, s_name, p_partkey LIMIT 100;
                                                              QUERY PLAN                                                              
 -------------------------------------------------------------------------------------------------------------------------------------
- Limit  (cost=87679.98..87679.98 rows=1 width=190)
-   ->  Sort  (cost=87679.98..87679.98 rows=1 width=190)
+ Limit  (cost=86016.34..86016.34 rows=1 width=190)
+   ->  Sort  (cost=86016.34..86016.34 rows=1 width=190)
          Sort Key: supplier.s_acctbal DESC, nation.n_name, supplier.s_name, part.p_partkey
-         ->  Merge Join  (cost=48169.66..87679.97 rows=1 width=190)
+         ->  Merge Join  (cost=48200.29..86016.33 rows=1 width=190)
                Merge Cond: (part.p_partkey = partsupp.ps_partkey)
                Join Filter: (partsupp.ps_supplycost = (SubPlan 1))
-               ->  Index Scan using part_pkey on part  (cost=0.42..10271.42 rows=831 width=30)
+               ->  Index Scan using part_pkey on part  (cost=0.42..10271.42 rows=760 width=30)
                      Filter: (((p_type)::text ~~ '%NICKEL'::text) AND (p_size = 19))
-               ->  Materialize  (cost=48169.19..48968.31 rows=159824 width=168)
-                     ->  Sort  (cost=48169.19..48568.75 rows=159824 width=168)
+               ->  Materialize  (cost=48199.87..48999.87 rows=160000 width=168)
+                     ->  Sort  (cost=48199.87..48599.87 rows=160000 width=168)
                            Sort Key: partsupp.ps_partkey
-                           ->  Nested Loop  (cost=1.99..21244.50 rows=159824 width=168)
+                           ->  Nested Loop  (cost=1.99..21244.70 rows=160000 width=168)
                                  ->  Nested Loop  (cost=1.56..568.33 rows=2000 width=164)
                                        Join Filter: (nation.n_regionkey = region.r_regionkey)
                                        ->  Seq Scan on region  (cost=0.00..1.06 rows=1 width=4)

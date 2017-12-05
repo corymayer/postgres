@@ -2,13 +2,13 @@
  customer | customer_pkey         |           420 |       300722
  customer | i_c_nationkey         |             1 |            7
  lineitem | i_l_commitdate        |             1 |           15
- lineitem | i_l_orderkey          |             1 |           15
- lineitem | i_l_orderkey_quantity |             6 |          124
- lineitem | i_l_partkey           |             6 |           64
+ lineitem | i_l_orderkey          |             6 |          124
+ lineitem | i_l_orderkey_quantity |             1 |           15
+ lineitem | i_l_partkey           |             1 |           15
  lineitem | i_l_receiptdate       |             1 |           15
  lineitem | i_l_shipdate          |             4 |           15
  lineitem | i_l_suppkey           |             6 |           82
- lineitem | i_l_suppkey_partkey   |             1 |           15
+ lineitem | i_l_suppkey_partkey   |             6 |           64
  nation   | i_n_regionkey         |             1 |            8
  orders   | i_o_custkey           |             6 |           90
  orders   | i_o_orderdate         |             1 |           11

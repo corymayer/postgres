@@ -1,4 +1,4 @@
--- using 1205002340 as a seed to the RNG
+-- using 1205092612 as a seed to the RNG
 -- @(#)17.sql	2.1.8.1
 -- TPC-H/TPC-R Small-Quantity-Order Revenue Query (Q17)
 -- Functional Query Definition
@@ -15,7 +15,7 @@ from
 	part
 where
 	p_partkey = l_partkey
-	and p_brand = 'Brand#22'
+	and p_brand = 'Brand#21'
 	and p_container = 'JUMBO CASE'
 	and l_quantity < (
 		select

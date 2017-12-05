@@ -1,4 +1,4 @@
--- using 1205002340 as a seed to the RNG
+-- using 1205092612 as a seed to the RNG
 -- @(#)22.sql	2.1.8.1
 -- TPC-H/TPC-R Global Sales Opportunity Query (Q22)
 -- Functional Query Definition
@@ -21,7 +21,7 @@ from
 			customer
 		where
 			substr(c_phone, 1, 2) in
-				('30', '29', '27', '18', '24', '15', '21')
+				('11', '28', '16', '32', '20', '24', '27')
 			and c_acctbal > (
 				select
 					avg(c_acctbal)
@@ -30,7 +30,7 @@ from
 				where
 					c_acctbal > 0.00
 					and substr(c_phone, 1, 2) in
-						('30', '29', '27', '18', '24', '15', '21')
+						('11', '28', '16', '32', '20', '24', '27')
 			)
 			and not exists (
 				select

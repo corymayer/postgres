@@ -1,4 +1,4 @@
--- using 1205002340 as a seed to the RNG
+-- using 1205092612 as a seed to the RNG
 -- @(#)9.sql	2.1.8.1
 -- TPC-H/TPC-R Product Type Profit Measure Query (Q9)
 -- Functional Query Definition
@@ -32,7 +32,7 @@ from
 			and p_partkey = l_partkey
 			and o_orderkey = l_orderkey
 			and s_nationkey = n_nationkey
-			and p_name like '%royal%'
+			and p_name like '%honeydew%'
 	) as profit
 group by
 	nation,

@@ -1,4 +1,4 @@
--- using 1205002340 as a seed to the RNG
+-- using 1205092612 as a seed to the RNG
 -- @(#)12.sql	2.1.8.1
 -- TPC-H/TPC-R Shipping Modes and Order Priority Query (Q12)
 -- Functional Query Definition
@@ -27,11 +27,11 @@ from
 	lineitem
 where
 	o_orderkey = l_orderkey
-	and l_shipmode in ('TRUCK', 'REG AIR')
+	and l_shipmode in ('RAIL', 'SHIP')
 	and l_commitdate < l_receiptdate
 	and l_shipdate < l_commitdate
-	and l_receiptdate >= date '1994-01-01'
-	and l_receiptdate < date '1994-01-01' + interval '1 year'
+	and l_receiptdate >= date '1995-01-01'
+	and l_receiptdate < date '1995-01-01' + interval '1 year'
 group by
 	l_shipmode
 order by

@@ -1,4 +1,4 @@
--- using 1205002340 as a seed to the RNG
+-- using 1205092612 as a seed to the RNG
 -- @(#)14.sql	2.1.8.1
 -- TPC-H/TPC-R Promotion Effect Query (Q14)
 -- Functional Query Definition
@@ -19,7 +19,7 @@ from
 	part
 where
 	l_partkey = p_partkey
-	and l_shipdate >= date '1994-09-01'
-	and l_shipdate < date '1994-09-01' + interval '1 month';
+	and l_shipdate >= date '1995-03-01'
+	and l_shipdate < date '1995-03-01' + interval '1 month';
 COMMIT;
 

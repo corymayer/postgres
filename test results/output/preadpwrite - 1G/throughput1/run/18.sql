@@ -1,4 +1,4 @@
--- using 1205002340 as a seed to the RNG
+-- using 1205092612 as a seed to the RNG
 -- @(#)18.sql	2.1.8.1
 -- TPC-H/TPC-R Large Volume Customer Query (Q18)
 -- Function Query Definition
@@ -27,7 +27,7 @@ where
 			lineitem
 		group by
 			l_orderkey having
-				sum(l_quantity) > 313
+				sum(l_quantity) > 312
 	)
 	and c_custkey = o_custkey
 	and o_orderkey = l_orderkey

@@ -1,7 +1,7 @@
-Tue Dec  5 00:25:28 PST 2017: Stream 2 : Starting Refresh Stream 2...
+Tue Dec  5 09:28:00 PST 2017: Stream 2 : Starting Refresh Stream 2...
 COPY 1500
 DELETE 5952
 DELETE 1500
 DELETE 1500
-Tue Dec  5 00:25:34 PST 2017: Stream 2 : Refresh Stream 2 completed.
+Tue Dec  5 09:28:06 PST 2017: Stream 2 : Refresh Stream 2 completed.
 Stream 2 : Elapsed time for Refresh Stream 2 : 6 seconds

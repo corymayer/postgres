@@ -1,4 +1,4 @@
--- using 1205002340 as a seed to the RNG
+-- using 1205092612 as a seed to the RNG
 -- @(#)11.sql	2.1.8.1
 -- TPC-H/TPC-R Important Stock Identification Query (Q11)
 -- Functional Query Definition
@@ -18,7 +18,7 @@ from
 where
 	ps_suppkey = s_suppkey
 	and s_nationkey = n_nationkey
-	and n_name = 'ROMANIA'
+	and n_name = 'JORDAN'
 group by
 	ps_partkey having
 		sum(ps_supplycost * ps_availqty) > (
@@ -31,7 +31,7 @@ group by
 			where
 				ps_suppkey = s_suppkey
 				and s_nationkey = n_nationkey
-				and n_name = 'ROMANIA'
+				and n_name = 'JORDAN'
 		)
 order by
 	value desc;

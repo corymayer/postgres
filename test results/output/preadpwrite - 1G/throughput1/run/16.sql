@@ -1,4 +1,4 @@
--- using 1205002340 as a seed to the RNG
+-- using 1205092612 as a seed to the RNG
 -- @(#)16.sql	2.1.8.1
 -- TPC-H/TPC-R Parts/Supplier Relationship Query (Q16)
 -- Functional Query Definition
@@ -19,8 +19,8 @@ from
 where
 	p_partkey = ps_partkey
 	and p_brand <> 'Brand#22'
-	and p_type not like 'MEDIUM ANODIZED%'
-	and p_size in (31, 40, 10, 43, 20, 21, 33, 42)
+	and p_type not like 'STANDARD BURNISHED%'
+	and p_size in (13, 1, 43, 3, 37, 14, 46, 21)
 	and ps_suppkey not in (
 		select
 			s_suppkey

@@ -1,6 +1,6 @@
 
  relname  |  pid  |      mode       | granted 
 ----------+-------+-----------------+---------
- pg_locks | 10758 | AccessShareLock | t
+ pg_locks | 15352 | AccessShareLock | t
 (1 row)
 

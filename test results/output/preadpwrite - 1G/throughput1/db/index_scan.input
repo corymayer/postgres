@@ -1,28 +1,28 @@
 set xlabel "Elapsed Time (Minutes)"
 set ylabel "Index Scans"
 set term png small
-set output "/home/o-right-pc/dbt3/scripts/output/5/throughput1/db/index_scan.png"
+set output "/home/o-right-pc/dbt3/scripts/output/6/throughput1/db/index_scan.png"
 set yrange [0:]
-plot "/home/o-right-pc/dbt3/scripts/output/5/throughput1/db/index_scan.data" using 1:1 title "i_c_nationkey" with lines, \
-"/home/o-right-pc/dbt3/scripts/output/5/throughput1/db/index_scan.data" using 1:2 title "i_l_commitdate" with lines, \
-"/home/o-right-pc/dbt3/scripts/output/5/throughput1/db/index_scan.data" using 1:3 title "i_l_orderkey" with lines, \
-"/home/o-right-pc/dbt3/scripts/output/5/throughput1/db/index_scan.data" using 1:4 title "i_l_orderkey_quantity" with lines, \
-"/home/o-right-pc/dbt3/scripts/output/5/throughput1/db/index_scan.data" using 1:5 title "i_l_partkey" with lines, \
-"/home/o-right-pc/dbt3/scripts/output/5/throughput1/db/index_scan.data" using 1:6 title "i_l_receiptdate" with lines, \
-"/home/o-right-pc/dbt3/scripts/output/5/throughput1/db/index_scan.data" using 1:7 title "i_l_shipdate" with lines, \
-"/home/o-right-pc/dbt3/scripts/output/5/throughput1/db/index_scan.data" using 1:8 title "i_l_suppkey" with lines, \
-"/home/o-right-pc/dbt3/scripts/output/5/throughput1/db/index_scan.data" using 1:9 title "i_l_suppkey_partkey" with lines, \
-"/home/o-right-pc/dbt3/scripts/output/5/throughput1/db/index_scan.data" using 1:10 title "i_n_regionkey" with lines, \
-"/home/o-right-pc/dbt3/scripts/output/5/throughput1/db/index_scan.data" using 1:11 title "i_o_custkey" with lines, \
-"/home/o-right-pc/dbt3/scripts/output/5/throughput1/db/index_scan.data" using 1:12 title "i_o_orderdate" with lines, \
-"/home/o-right-pc/dbt3/scripts/output/5/throughput1/db/index_scan.data" using 1:13 title "i_ps_partkey" with lines, \
-"/home/o-right-pc/dbt3/scripts/output/5/throughput1/db/index_scan.data" using 1:14 title "i_ps_suppkey" with lines, \
-"/home/o-right-pc/dbt3/scripts/output/5/throughput1/db/index_scan.data" using 1:15 title "i_s_nationkey" with lines, \
-"/home/o-right-pc/dbt3/scripts/output/5/throughput1/db/index_scan.data" using 1:16 title "pk_customer" with lines, \
-"/home/o-right-pc/dbt3/scripts/output/5/throughput1/db/index_scan.data" using 1:17 title "pk_lineitem" with lines, \
-"/home/o-right-pc/dbt3/scripts/output/5/throughput1/db/index_scan.data" using 1:18 title "pk_nation" with lines, \
-"/home/o-right-pc/dbt3/scripts/output/5/throughput1/db/index_scan.data" using 1:19 title "pk_orders" with lines, \
-"/home/o-right-pc/dbt3/scripts/output/5/throughput1/db/index_scan.data" using 1:20 title "pk_part" with lines, \
-"/home/o-right-pc/dbt3/scripts/output/5/throughput1/db/index_scan.data" using 1:21 title "pk_partsupp" with lines, \
-"/home/o-right-pc/dbt3/scripts/output/5/throughput1/db/index_scan.data" using 1:22 title "pk_region" with lines, \
-"/home/o-right-pc/dbt3/scripts/output/5/throughput1/db/index_scan.data" using 1:23 title "pk_supplier" with lines
+plot "/home/o-right-pc/dbt3/scripts/output/6/throughput1/db/index_scan.data" using 1:1 title "i_c_nationkey" with lines, \
+"/home/o-right-pc/dbt3/scripts/output/6/throughput1/db/index_scan.data" using 1:2 title "i_l_commitdate" with lines, \
+"/home/o-right-pc/dbt3/scripts/output/6/throughput1/db/index_scan.data" using 1:3 title "i_l_orderkey" with lines, \
+"/home/o-right-pc/dbt3/scripts/output/6/throughput1/db/index_scan.data" using 1:4 title "i_l_orderkey_quantity" with lines, \
+"/home/o-right-pc/dbt3/scripts/output/6/throughput1/db/index_scan.data" using 1:5 title "i_l_partkey" with lines, \
+"/home/o-right-pc/dbt3/scripts/output/6/throughput1/db/index_scan.data" using 1:6 title "i_l_receiptdate" with lines, \
+"/home/o-right-pc/dbt3/scripts/output/6/throughput1/db/index_scan.data" using 1:7 title "i_l_shipdate" with lines, \
+"/home/o-right-pc/dbt3/scripts/output/6/throughput1/db/index_scan.data" using 1:8 title "i_l_suppkey" with lines, \
+"/home/o-right-pc/dbt3/scripts/output/6/throughput1/db/index_scan.data" using 1:9 title "i_l_suppkey_partkey" with lines, \
+"/home/o-right-pc/dbt3/scripts/output/6/throughput1/db/index_scan.data" using 1:10 title "i_n_regionkey" with lines, \
+"/home/o-right-pc/dbt3/scripts/output/6/throughput1/db/index_scan.data" using 1:11 title "i_o_custkey" with lines, \
+"/home/o-right-pc/dbt3/scripts/output/6/throughput1/db/index_scan.data" using 1:12 title "i_o_orderdate" with lines, \
+"/home/o-right-pc/dbt3/scripts/output/6/throughput1/db/index_scan.data" using 1:13 title "i_ps_partkey" with lines, \
+"/home/o-right-pc/dbt3/scripts/output/6/throughput1/db/index_scan.data" using 1:14 title "i_ps_suppkey" with lines, \
+"/home/o-right-pc/dbt3/scripts/output/6/throughput1/db/index_scan.data" using 1:15 title "i_s_nationkey" with lines, \
+"/home/o-right-pc/dbt3/scripts/output/6/throughput1/db/index_scan.data" using 1:16 title "pk_customer" with lines, \
+"/home/o-right-pc/dbt3/scripts/output/6/throughput1/db/index_scan.data" using 1:17 title "pk_lineitem" with lines, \
+"/home/o-right-pc/dbt3/scripts/output/6/throughput1/db/index_scan.data" using 1:18 title "pk_nation" with lines, \
+"/home/o-right-pc/dbt3/scripts/output/6/throughput1/db/index_scan.data" using 1:19 title "pk_orders" with lines, \
+"/home/o-right-pc/dbt3/scripts/output/6/throughput1/db/index_scan.data" using 1:20 title "pk_part" with lines, \
+"/home/o-right-pc/dbt3/scripts/output/6/throughput1/db/index_scan.data" using 1:21 title "pk_partsupp" with lines, \
+"/home/o-right-pc/dbt3/scripts/output/6/throughput1/db/index_scan.data" using 1:22 title "pk_region" with lines, \
+"/home/o-right-pc/dbt3/scripts/output/6/throughput1/db/index_scan.data" using 1:23 title "pk_supplier" with lines

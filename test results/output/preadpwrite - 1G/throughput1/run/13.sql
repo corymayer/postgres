@@ -1,4 +1,4 @@
--- using 1205002340 as a seed to the RNG
+-- using 1205092612 as a seed to the RNG
 -- @(#)13.sql	2.1.8.1
 -- TPC-H/TPC-R Customer Distribution Query (Q13)
 -- Functional Query Definition
@@ -19,7 +19,7 @@ from
 		from
 			customer left outer join orders on
 				c_custkey = o_custkey
-				and o_comment not like '%special%requests%'
+				and o_comment not like '%express%requests%'
 		group by
 			c_custkey
 	) as c_orders (c_custkey, c_count)

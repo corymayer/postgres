@@ -1,4 +1,4 @@
--- using 1205002340 as a seed to the RNG
+-- using 1205092612 as a seed to the RNG
 -- @(#)4.sql	2.1.8.1
 -- TPC-H/TPC-R Order Priority Checking Query (Q4)
 -- Functional Query Definition
@@ -14,8 +14,8 @@ select
 from
 	orders
 where
-	o_orderdate >= date '1996-09-01'
-	and o_orderdate < date '1996-09-01' + interval '3 months'
+	o_orderdate >= date '1996-07-01'
+	and o_orderdate < date '1996-07-01' + interval '3 months'
 	and exists (
 		select
 			*

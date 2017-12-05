@@ -1,4 +1,4 @@
--- using 1205002340 as a seed to the RNG
+-- using 1205092612 as a seed to the RNG
 -- @(#)2.sql	2.1.8.2
 -- TPC-H/TPC-R Minimum Cost Supplier Query (Q2)
 -- Functional Query Definition

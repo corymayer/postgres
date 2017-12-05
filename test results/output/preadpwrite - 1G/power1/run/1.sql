@@ -1,4 +1,4 @@
--- using 1205002340 as a seed to the RNG
+-- using 1205092612 as a seed to the RNG
 -- @(#)1.sql	2.1.8.1
 -- TPC-H/TPC-R Pricing Summary Report Query (Q1)
 -- Functional Query Definition
@@ -22,7 +22,7 @@ select
 from
 	lineitem
 where
-	l_shipdate <= date'1998-12-01' - interval '91 day'
+	l_shipdate <= date'1998-12-01' - interval '102 day'
 group by
 	l_returnflag,
 	l_linestatus
