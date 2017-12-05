@@ -1955,7 +1955,7 @@ retry:
 }
 
 int
-FileWrite(File file, char *buffer, int amount, uint32 wait_event_info)
+FileWrite(File file, char *buffer, off_t offset, int amount, uint32 wait_event_info)
 {
 	int			returnCode;
 	Vfd		   *vfdP;
@@ -2014,7 +2014,7 @@ FileWrite(File file, char *buffer, int amount, uint32 wait_event_info)
 retry:
 	errno = 0;
 	pgstat_report_wait_start(wait_event_info);
-	returnCode = write(vfdP->fd, buffer, amount);
+	returnCode = pwrite(vfdP->fd, buffer, amount, offset);
 	pgstat_report_wait_end();
 
 	/* if write didn't set errno, assume problem is no disk space */

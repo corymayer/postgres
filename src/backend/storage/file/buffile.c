@@ -487,14 +487,10 @@ BufFileDumpBuffer(BufFile *file)
 		 * May need to reposition physical file.
 		 */
 		thisfile = file->files[file->curFile];
-		if (file->curOffset != file->offsets[file->curFile])
-		{
-			if (FileSeek(thisfile, file->curOffset, SEEK_SET) != file->curOffset)
-				return;			/* seek failed, give up */
-			file->offsets[file->curFile] = file->curOffset;
-		}
+
 		bytestowrite = FileWrite(thisfile,
 								 file->buffer + wpos,
+								 file->curOffset,
 								 bytestowrite,
 								 WAIT_EVENT_BUFFILE_WRITE);
 		if (bytestowrite <= 0)

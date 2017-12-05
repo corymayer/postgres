@@ -69,7 +69,7 @@ extern File OpenTemporaryFile(bool interXact);
 extern void FileClose(File file);
 extern int	FilePrefetch(File file, off_t offset, int amount, uint32 wait_event_info);
 extern int	FileRead(File file, char *buffer, off_t offset, int amount, uint32 wait_event_info);
-extern int	FileWrite(File file, char *buffer, int amount, uint32 wait_event_info);
+extern int	FileWrite(File file, char *buffer, off_t offset, int amount, uint32 wait_event_info);
 extern int	FileSync(File file, uint32 wait_event_info);
 extern off_t FileSeek(File file, off_t offset, int whence);
 extern int	FileTruncate(File file, off_t offset, uint32 wait_event_info);
